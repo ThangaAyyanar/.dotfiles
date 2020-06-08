@@ -1,0 +1,20 @@
+#using tmux as ide like environment for c program
+
+splitw -h -p 40 # split it into two halves
+splitw -v -p 80 # split it into two halves
+set synchronize-panes on
+send ' cd ~/programs/c/skillrack' enter c-l
+set synchronize-panes off
+
+#send -t 1 'vi' enter
+
+selectp -t 1
+
+# +--------------------+--------------------+
+# | 1: Vi editor       | 2.Compile program  |
+# +                    +--------------------+
+# |                    | 3.Run Program      |
+# +                    |                    |
+# |                    |                    |
+# |                    |                    |
+# +-----------------------------------------+
