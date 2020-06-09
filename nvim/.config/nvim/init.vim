@@ -29,7 +29,6 @@ Plug 'airblade/vim-gitgutter'
 Plug 'wincent/ferret'
 
 " Fuzzy finder
-Plug '/usr/local/opt/fzf'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 
@@ -92,9 +91,6 @@ nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
 
 nnoremap <leader>n :bnext<cr>
 nnoremap <leader>p :bprev<cr>
-if executable('fzf')
-    nnoremap <leader>b :FzfBuffers<cr>
-endif
 
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
@@ -141,8 +137,16 @@ set smarttab
 
 " fzf
 if executable('fzf')
-    nnoremap <c-p> :FZF<cr>
+    let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
+    let $FZF_DEFAULT_COMMAND="rg --files --hidden" 
+    nnoremap <c-p> :FzfFiles<cr>
+    nnoremap <c-f> :FzfRg<cr>
+    nnoremap <leader>b :FzfBuffers<cr>
+    nnoremap <leader>g :FzfGitFiles<cr>
+    " All commands provided by fzf will have this prefix
     let g:fzf_command_prefix = 'Fzf'
+    " Border color
+    let g:fzf_layout = {'up':'~90%', 'window': { 'width': 0.8, 'height': 0.8,'yoffset':0.5,'xoffset': 0.5, 'highlight': 'Todo', 'border': 'sharp' } }
 endif
 
 " quickly insert a timestamp
