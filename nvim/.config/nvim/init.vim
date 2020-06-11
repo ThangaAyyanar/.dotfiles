@@ -25,9 +25,6 @@ Plug 'sheerun/vim-polyglot'
 " show file changes near the line number
 Plug 'airblade/vim-gitgutter'
 
-" grep the data
-Plug 'wincent/ferret'
-
 " Fuzzy finder
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
@@ -67,7 +64,9 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'vimwiki/vimwiki', { 'for': 'markdown' }
 Plug 'godlygeek/tabular', {'for': 'markdown' }
 
-" Vim ANSI support
+" easily navigate between quickfix,buffers and more
+Plug 'tpope/vim-unimpaired'
+"Vim ANSI support
 "Plug 'powerman/vim-plugin-AnsiEsc'
 
 call plug#end()
@@ -99,12 +98,12 @@ map <leader>- :<c-u>split<cr>
 map <leader>\ :<c-u>vsplit<cr>
 
 " Global file search from root directory - ferret
-nnoremap <leader>F :<c-u>Ack<space>
 
 set cursorline
 set number
 set relativenumber
 set undofile
+set termguicolors
 
 set undodir=/tmp
 " not interfere with tmux scroll
@@ -140,7 +139,8 @@ if executable('fzf')
     let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
     let $FZF_DEFAULT_COMMAND="rg --files --hidden" 
     nnoremap <c-p> :FzfFiles<cr>
-    nnoremap <c-f> :FzfRg<cr>
+    nnoremap <c-f> :FzfBLines<cr>
+    nnoremap <leader>F :FzfRg<cr>
     nnoremap <leader>b :FzfBuffers<cr>
     nnoremap <leader>g :FzfGitFiles<cr>
     " All commands provided by fzf will have this prefix
@@ -186,14 +186,22 @@ function! CopyMatches(reg)
 endfunction
 command! -register CopyMatches call CopyMatches(<q-reg>)
 
+function! LightlineGitGutter()
+  if !get(g:, 'gitgutter_enabled', 0) || empty(FugitiveHead())
+    return ''
+  endif
+  let [ l:added, l:modified, l:removed ] = GitGutterGetHunkSummary()
+  return printf('+%d ~%d -%d', l:added, l:modified, l:removed)
+endfunction
 
 let g:lightline = {
       \ 'colorscheme': 'one',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'gitbranch', 'cocstatus', 'readonly', 'filename', 'modified' ] ]
+      \             [ 'githunk','gitbranch', 'cocstatus', 'readonly', 'filename', 'modified' ] ]
       \ },
       \ 'component_function': {
+      \   'githunk': 'LightlineGitGutter',
       \   'gitbranch': 'fugitive#head',
       \   'cocstatus': 'coc#status'
       \ },
@@ -230,6 +238,15 @@ iabbrev bpfm +++<cr>title = "<++>"<cr>date = <++><cr>description = "<++>"<cr>in_
 " Task warrior template
 iabbrev twnt task add "<++>" project:<++> +<++><cr>task +LATEST annotate "<++>"
 
+" User Defined function
+function TodoTaskAdd()
+    "https://coderwall.com/p/auy6fa/vim-get-current-file-path
+    let annotation = expand('%:p')
+    let task = expand("%:t")
+    let lineNumber = line(".")
+    execute '!task rc.data.location=~/TaskBase/Office add '.task.' +Todo project:Remainder'
+    execute '!task rc.data.location=~/TaskBase/Office +LATEST annotate "file:'.annotation.':'.lineNumber.'"'
+endfunction
 
 " COC SETUP
 
