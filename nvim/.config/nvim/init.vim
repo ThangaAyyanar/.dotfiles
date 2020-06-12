@@ -62,7 +62,8 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " Notes Management
 Plug 'vimwiki/vimwiki', { 'for': 'markdown' }
-Plug 'godlygeek/tabular', {'for': 'markdown' }
+Plug 'michal-h21/vim-zettel', { 'for': 'markdown' }
+Plug 'godlygeek/tabular'
 
 " easily navigate between quickfix,buffers and more
 Plug 'tpope/vim-unimpaired'
@@ -208,9 +209,20 @@ let g:lightline = {
       \ }
 
 " Vim wiki
-let g:vimwiki_list = [{'path': '~/Documents/My Library','syntax': 'markdown','ext': '.md'}]
-let g:vimwiki_global_ext = 0
+let g:vimwiki_list = [{'path': '~/Documents/My Library','syntax': 'markdown','ext': '.md'},{"path":"/Users/thanga-6745/Zoho\ WorkDrive\ \(Enterprise\)/My\ Folders/SlipBox", 'auto_tags': 1, 'auto_toc': 1,'syntax': 'markdown','ext': '.md'}]
 let g:vimwiki_ext2syntax = {'.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
+
+"vim-zettel
+let g:zettel_format = '%Y%m%d%H%M-%S'
+let g:zettel_options = [{"front_matter" : {"tags" : ""}, "template" :  "~/Templates/zettel.tpl"}]
+let g:zettel_fzf_command = "rg --column --line-number --ignore-case --no-heading --color=always "
+nnoremap <leader>vt :VimwikiSearchTags<space>
+nnoremap <leader>vs :VimwikiSearch<space>
+nnoremap <leader>gt :VimwikiRebuildTags!<cr>:VimwikiGenerateTagLinks<cr><c-l>
+nnoremap <leader>zl :ZettelSearch<cr>
+nnoremap <leader>zn :ZettelNew<cr><cr>:4d<cr>:w<cr>ggA
+nnoremap <leader>bl :VimwikiBacklinks<cr>
+
 "{{{Tabular plugin tricks
 inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
 

@@ -44,6 +44,9 @@ https://www.cellebrite.com/en/feed/ 									"Blog" #"Forensics"
 https://www.cybereason.com/blog/rss.xml 								"Blog" #"Security"
 https://research.securitum.com/feed/ 									"Blog" #"Security"
 
+# Newsletter
+http://www.vimweekly.com/issues.xml                                     "Newsletter" #"Vim"
+
 #TWITTER FEEDS
 
 "query:Twitter Feeds:tags # \"Twitter\""                                "Twitter"
