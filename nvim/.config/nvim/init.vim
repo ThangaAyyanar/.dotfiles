@@ -65,6 +65,12 @@ Plug 'vimwiki/vimwiki', { 'for': 'markdown' }
 Plug 'michal-h21/vim-zettel', { 'for': 'markdown' }
 Plug 'godlygeek/tabular'
 
+" css colors
+Plug 'ap/vim-css-color'
+
+" zoom in zoom out window
+" also check https://vim.fandom.com/wiki/Window_zooming_convenience
+Plug 'dhruvasagar/vim-zoom'
 " easily navigate between quickfix,buffers and more
 Plug 'tpope/vim-unimpaired'
 "Vim ANSI support
@@ -104,6 +110,7 @@ set cursorline
 set number
 set relativenumber
 set undofile
+set ignorecase
 set termguicolors
 
 set undodir=/tmp
@@ -140,9 +147,9 @@ if executable('fzf')
     let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
     let $FZF_DEFAULT_COMMAND="rg --files --hidden" 
     nnoremap <c-p> :FzfFiles<cr>
-    nnoremap <c-f> :FzfBLines<cr>
+    nnoremap <space><space> :FzfBLines<cr>
     nnoremap <leader>F :FzfRg<cr>
-    nnoremap <leader>b :FzfBuffers<cr>
+    nnoremap <leader>b<space> :FzfBuffers<cr>
     nnoremap <leader>g :FzfGitFiles<cr>
     " All commands provided by fzf will have this prefix
     let g:fzf_command_prefix = 'Fzf'
@@ -153,7 +160,7 @@ endif
 " quickly insert a timestamp
 nnoremap tt "=strftime("%d %b %y %x")<cr>p
 
-" git gutter sign column
+" enable vim sign column
 set signcolumn=yes
 
 " column limit
@@ -196,6 +203,19 @@ function! LightlineGitGutter()
 endfunction
 
 let g:lightline = {
+      \ 'mode_map': {
+      \ 'n' : 'N',
+      \ 'i' : 'I',
+      \ 'R' : 'R',
+      \ 'v' : 'V',
+      \ 'V' : 'VL',
+      \ "\<C-v>": 'VB',
+      \ 'c' : 'C',
+      \ 's' : 'S',
+      \ 'S' : 'SL',
+      \ "\<C-s>": 'SB',
+      \ 't': 'T',
+      \ },
       \ 'colorscheme': 'one',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
@@ -208,17 +228,26 @@ let g:lightline = {
       \ },
       \ }
 
+" Apply colors for filename in Lightline inactive state 
+" Excellent for editing files horizontally
+autocmd VimEnter * call SetupLightlineColors()
+function SetupLightlineColors() abort
+  let l:palette = lightline#palette()
+  let l:palette.inactive.left = [["#282c34","#ff8c66",235,168,"bold"],["#abb2bf","#3e4452",145,240]]
+  call lightline#colorscheme()
+endfunction
+
 " Vim wiki
 let g:vimwiki_list = [{'path': '~/Documents/My Library','syntax': 'markdown','ext': '.md'},{"path":"/Users/thanga-6745/Zoho\ WorkDrive\ \(Enterprise\)/My\ Folders/SlipBox", 'auto_tags': 1, 'auto_toc': 1,'syntax': 'markdown','ext': '.md'}]
 let g:vimwiki_ext2syntax = {'.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
 
 "vim-zettel
 let g:zettel_format = '%Y%m%d%H%M-%S'
-let g:zettel_options = [{"front_matter" : {"tags" : ""}, "template" :  "~/Templates/zettel.tpl"}]
+let g:zettel_options = [{},{"front_matter" : {"tags" : ""}, "template" :  "~/Templates/zettel.tpl"}]
 let g:zettel_fzf_command = "rg --column --line-number --ignore-case --no-heading --color=always "
 nnoremap <leader>vt :VimwikiSearchTags<space>
 nnoremap <leader>vs :VimwikiSearch<space>
-nnoremap <leader>gt :VimwikiRebuildTags!<cr>:VimwikiGenerateTagLinks<cr><c-l>
+nnoremap <leader>gt :VimwikiRebuildTags!<cr>:ZettelGenerateTags<cr><c-l>
 nnoremap <leader>zl :ZettelSearch<cr>
 nnoremap <leader>zn :ZettelNew<cr><cr>:4d<cr>:w<cr>ggA
 nnoremap <leader>bl :VimwikiBacklinks<cr>
