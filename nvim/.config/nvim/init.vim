@@ -95,6 +95,10 @@ nnoremap <leader>t :TagbarToggle<cr>
 nnoremap <leader>m :Goyo<cr>
 nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
 
+" Easy Tab navigation
+nnoremap H gT
+nnoremap L gt
+
 nnoremap <leader>n :bnext<cr>
 nnoremap <leader>p :bprev<cr>
 
@@ -178,7 +182,10 @@ inoremap <leader><leader> <Esc>/<++><Enter>"_c4l
 nnoremap <leader><leader> <Esc>/<++><Enter>"_c4l
 
 "foldding the content
-"set foldmethod=indent
+set foldmethod=indent
+set foldcolumn=1
+set foldlevel=1
+highlight Folded guifg=PeachPuff4
 
 function! s:goyo_enter()
     colorscheme gruvbox
