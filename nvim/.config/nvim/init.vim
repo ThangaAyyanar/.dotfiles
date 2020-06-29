@@ -50,6 +50,8 @@ Plug 'christoomey/vim-tmux-navigator'
 
 " Goyo integration - distraction free writing
 Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
+Plug 'junegunn/limelight.vim', { 'on': 'Goyo' }
+
 
 " Multiple cursors
 Plug 'terryma/vim-multiple-cursors'
@@ -189,9 +191,11 @@ highlight Folded guifg=PeachPuff4
 
 function! s:goyo_enter()
     colorscheme gruvbox
+    Limelight
 endfunction
 
 autocmd! User GoyoEnter nested call <SID>goyo_enter()
+autocmd! User GoyoLeave Limelight!
 
 function! CopyMatches(reg)
   let hits = []
