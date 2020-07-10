@@ -97,10 +97,6 @@ nnoremap <leader>t :TagbarToggle<cr>
 nnoremap <leader>m :Goyo<cr>
 nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
 
-" Easy Tab navigation
-nnoremap H gT
-nnoremap L gt
-
 nnoremap <leader>n :bnext<cr>
 nnoremap <leader>p :bprev<cr>
 
@@ -126,6 +122,8 @@ set mouse=a
 "set clipboard=unnamed
 " spell checking
 "set spell
+"live subtitution
+set inccommand=nosplit
 
 "better verical movement - particullary in long sentence in line
 nnoremap j gj
