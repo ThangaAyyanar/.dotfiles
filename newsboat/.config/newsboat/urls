@@ -44,6 +44,7 @@ https://knight.sc/atom.xml 												"Blog" #"Apple reverse Engineer" "exploit
 https://www.cellebrite.com/en/feed/ 									"Blog" #"Forensics"
 https://www.cybereason.com/blog/rss.xml 								"Blog" #"Security"
 https://research.securitum.com/feed/ 									"Blog" #"Security"
+https://reverse.put.as/index.xml                                        "Blog" #"Apple Reverse Enginnering"
 
 # Newsletter
 http://www.vimweekly.com/issues.xml                                     "Newsletter" #"Vim"

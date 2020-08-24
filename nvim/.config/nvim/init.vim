@@ -17,7 +17,7 @@ Plug 'morhetz/gruvbox'
 " bulk commeter
 Plug 'scrooloose/nerdcommenter'
 
-" swift syntax highlight
+" Syntax highlight
 Plug 'rust-lang/rust.vim', {'for': 'rust' }
 Plug 'keith/swift.vim', {'for': 'swift' }
 Plug 'sheerun/vim-polyglot'
@@ -35,6 +35,7 @@ Plug 'junegunn/vim-emoji'
 " git integration
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
+Plug 'stsewd/fzf-checkout.vim'
 
 " Highlight yank
 Plug 'machakann/vim-highlightedyank'
@@ -106,6 +107,12 @@ vnoremap K :m '<-2<CR>gv=gv
 map <leader>- :<c-u>split<cr>
 map <leader>\ :<c-u>vsplit<cr>
 
+nnoremap <leader>gg :diffget<cr>
+nnoremap <leader>gf :diffget //2<cr>
+nnoremap <leader>gh :diffput //3<cr>
+nnoremap <leader>gs :G<cr>
+" dv - on :G to resolve
+
 " Global file search from root directory - ferret
 
 set cursorline
@@ -148,6 +155,10 @@ set smarttab
 
 " fzf
 if executable('fzf')
+    " All commands provided by fzf will have this prefix
+    let g:fzf_command_prefix = 'Fzf'
+    " Border color
+    let g:fzf_layout = {'up':'~90%', 'window': { 'width': 0.8, 'height': 0.8,'yoffset':0.5,'xoffset': 0.5, 'highlight': 'Todo', 'border': 'sharp' } }
     let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
     let $FZF_DEFAULT_COMMAND="rg --files --hidden" 
     nnoremap <c-p> :FzfFiles<cr>
@@ -155,10 +166,10 @@ if executable('fzf')
     nnoremap <leader>F :FzfRg<cr>
     nnoremap <leader>b<space> :FzfBuffers<cr>
     nnoremap <leader>g :FzfGitFiles<cr>
-    " All commands provided by fzf will have this prefix
-    let g:fzf_command_prefix = 'Fzf'
-    " Border color
-    let g:fzf_layout = {'up':'~90%', 'window': { 'width': 0.8, 'height': 0.8,'yoffset':0.5,'xoffset': 0.5, 'highlight': 'Todo', 'border': 'sharp' } }
+
+    "FZF git checkout plugin
+    let g:fzf_checkout_create_key = 'ctrl-c'
+    nnoremap <leader>gc :FzfGCheckout<cr>
 endif
 
 " quickly insert a timestamp

@@ -2,5 +2,6 @@
     "python.jediEnabled": false,
     "python.pipenvPath":"/usr/local/bin/pipenv",
     "sourcekit.commandPath": "/Users/thanga-6745/Downloads/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp",
-    "sourcekit.targetArch": "x86_64-apple-ios13.2-simulator"
+    "sourcekit.targetArch": "x86_64-apple-ios13.2-simulator",
+    "sourcekit.indexPathDB": "/Users/thanga-6745/Library/Developer/Xcode/DerivedData/Creator-drebhuosjxzvkuheaoclzogujxqt/Index/DataStore"
 }
