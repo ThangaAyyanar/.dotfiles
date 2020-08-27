@@ -6,6 +6,12 @@ call plug#begin('~/.nvim/plugged')
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'majutsushi/tagbar', { 'on':  'TagbarToggle' }
 
+Plug 'lambdalisue/fern.vim'
+Plug 'lambdalisue/nerdfont.vim'
+Plug 'lambdalisue/glyph-palette.vim'
+Plug 'lambdalisue/fern-renderer-nerdfont.vim'
+"Plug 'lambdalisue/fern-git-status.vim'
+
 " Nice status bar
 Plug 'itchyny/lightline.vim'
 
@@ -202,6 +208,8 @@ function! s:goyo_enter()
     colorscheme gruvbox
     Limelight
 endfunction
+
+let g:fern#renderer = "nerdfont"
 
 autocmd! User GoyoEnter nested call <SID>goyo_enter()
 autocmd! User GoyoLeave Limelight!
@@ -424,3 +432,4 @@ command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 " Add `:OR` command for organize imports of the current buffer.
 command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
 
+nnoremap <leader>cs :CocSearch <C-R>=expand("<cword>")<CR><CR>
