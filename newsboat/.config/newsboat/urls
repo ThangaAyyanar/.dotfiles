@@ -297,6 +297,9 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCvrLvII5oxSWEMEkszrxXEA  "Y
 https://www.youtube.com/feeds/videos.xml?channel_id=UCwY9B5_8QDGP8niZhBtTh8w  "Youtube"  "~TWiT Tech Podcast Network"
 https://www.youtube.com/feeds/videos.xml?channel_id=UCxqAWLTk1CmBvZFPzeZMd9A  "Youtube"  "~Domain of Science"
 
+# Software Release
+https://raw.githubusercontent.com/ungoogled-software/ungoogled-chromium-binaries/master/feed.xml "Software Release" 
+
 #GITHUB
 
 #https://github.com/newsboat/newsboat/commits/master.atom 				"Github"

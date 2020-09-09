@@ -75,15 +75,15 @@ Plug 'michal-h21/vim-zettel', { 'for': 'markdown' }
 Plug 'godlygeek/tabular'
 
 " css colors
-Plug 'ap/vim-css-color'
+Plug 'chrisbra/Colorizer'
+
+Plug 'RRethy/vim-illuminate'
 
 " zoom in zoom out window
 " also check https://vim.fandom.com/wiki/Window_zooming_convenience
 Plug 'dhruvasagar/vim-zoom'
 " easily navigate between quickfix,buffers and more
 Plug 'tpope/vim-unimpaired'
-"Vim ANSI support
-"Plug 'powerman/vim-plugin-AnsiEsc'
 
 call plug#end()
 
@@ -127,6 +127,9 @@ set relativenumber
 set undofile
 set ignorecase
 set termguicolors
+set nostartofline
+set nojoinspaces
+set noswapfile
 
 set undodir=/tmp
 " not interfere with tmux scroll
@@ -147,6 +150,10 @@ map <c-j> <c-w>j
 map <c-k> <c-w>k
 map <c-h> <c-w>h
 map <c-l> <c-w>l
+tnoremap <c-h> <C-\><C-N><C-w>h
+tnoremap <c-j> <C-\><C-N><C-w>j
+tnoremap <c-k> <C-\><C-N><C-w>k
+tnoremap <c-l> <C-\><C-N><C-w>l
 
 " display hidden characters
 set list
@@ -159,6 +166,9 @@ set softtabstop=4
 set expandtab
 set smarttab
 
+"Set default grep to rg
+set grepprg=rg\ --vimgrep\ --smart-case\ --follow
+
 " fzf
 if executable('fzf')
     " All commands provided by fzf will have this prefix
@@ -168,9 +178,8 @@ if executable('fzf')
     let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
     let $FZF_DEFAULT_COMMAND="rg --files --hidden" 
     nnoremap <c-p> :FzfFiles<cr>
-    nnoremap <space><space> :FzfBLines<cr>
-    nnoremap <leader>F :FzfRg<cr>
-    nnoremap <leader>b<space> :FzfBuffers<cr>
+    nnoremap <space><space> :FzfBuffers<cr>
+    nnoremap <leader>f :FzfRg<cr>
     nnoremap <leader>g :FzfGitFiles<cr>
 
     "FZF git checkout plugin
@@ -191,6 +200,9 @@ set colorcolumn=80
 set splitbelow
 set splitright
 
+"terminal remap
+tnoremap <C-[> <C-\><C-n>
+
 " highlightedyank plugin
 highlight HighlightedyankRegion cterm=reverse gui=reverse
 
@@ -200,20 +212,39 @@ nnoremap <leader><leader> <Esc>/<++><Enter>"_c4l
 
 "foldding the content
 set foldmethod=indent
-set foldcolumn=1
 set foldlevel=1
 highlight Folded guifg=PeachPuff4
 
+" Goyo Configuration
 function! s:goyo_enter()
     colorscheme gruvbox
     Limelight
 endfunction
 
-let g:fern#renderer = "nerdfont"
-
 autocmd! User GoyoEnter nested call <SID>goyo_enter()
 autocmd! User GoyoLeave Limelight!
 
+" Terminal Enter and close
+function Terminal_enter()
+    set relativenumber!
+    set number!
+    set signcolumn=no
+    startinsert
+endfunction
+function Terminal_close()
+    set relativenumber
+    set number
+    set signcolumn=yes
+endfunction
+
+autocmd TermOpen * :call Terminal_enter()
+autocmd TermClose * :call Terminal_close()
+
+
+" Fern - File Manager
+let g:fern#renderer = "nerdfont"
+
+" Copy matches which corresponds to search
 function! CopyMatches(reg)
   let hits = []
   %s//\=len(add(hits, submatch(0))) ? submatch(0) : ''/gne
@@ -222,6 +253,7 @@ function! CopyMatches(reg)
 endfunction
 command! -register CopyMatches call CopyMatches(<q-reg>)
 
+" Lightline Configuration
 function! LightlineGitGutter()
   if !get(g:, 'gitgutter_enabled', 0) || empty(FugitiveHead())
     return ''
@@ -392,10 +424,11 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
+nnoremap <leader>cs :CocSearch <C-R>=expand("<cword>")<CR><CR>
 
 " Formatting selected code.
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
+xmap <leader>=  <Plug>(coc-format-selected)
+nmap <leader>=  <Plug>(coc-format-selected)
 
 augroup mygroup
   autocmd!
@@ -432,4 +465,3 @@ command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 " Add `:OR` command for organize imports of the current buffer.
 command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
 
-nnoremap <leader>cs :CocSearch <C-R>=expand("<cword>")<CR><CR>
