@@ -1,0 +1,4 @@
+{
+    "python.jediEnabled": false,
+    "python.pipenvPath":"/usr/local/bin/pipenv"
+}
