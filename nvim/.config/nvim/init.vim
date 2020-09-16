@@ -163,6 +163,8 @@ set softtabstop=4
 set expandtab
 set smarttab
 
+set fileencoding=utf8
+
 "Set default grep to rg
 set grepprg=rg\ --vimgrep\ --smart-case\ --follow
 
