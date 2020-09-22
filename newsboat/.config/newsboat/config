@@ -1,6 +1,7 @@
 auto-reload yes
 prepopulate-query-feeds yes
 show-read-feeds no
+#run-on-startup set-tag;open
 
 # colors
 color background          color229   default
@@ -35,7 +36,7 @@ highlight article ":.*\\(embedded flash\\)$" magenta default
 
 external-url-viewer "urlview"
 
-browser "open /Applications/Safari.app";toggle-article-read "read"
+browser "open /Applications/Firefox Developer Edition.app";toggle-article-read "read"
 
 #html-renderer "w3m -dump -T text/html -o color=true"
 macro o set browser "tmux split-window && tmux send-keys 'w3m %u && tmux kill-pane\n'"; open-in-browser ; set browser "$BROWSER %u"
@@ -66,11 +67,6 @@ bind-key x pb-delete
 text-width 80
 
 # Keybinding
-bind-key k up
-bind-key j down
-bind-key q quit
-unbind-key l
-bind-key l open
 bind-key m toggle-show-read-feeds
 unbind-key C
 unbind-key A feedlist
