@@ -99,6 +99,7 @@ nnoremap <leader>t :TagbarToggle<cr>
 nnoremap <leader>m :Goyo<cr>
 nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
 nnoremap <leader>x V:!xmllint --format -<cr>:set filetype=xml<cr>
+nnoremap <leader>cc vipyPgvO<Esc>O<Esc>gv:!curl --config -<CR>
 
 nnoremap <leader>n :bnext<cr>
 nnoremap <leader>p :bprev<cr>
