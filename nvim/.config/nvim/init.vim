@@ -53,7 +53,7 @@ Plug 'junegunn/limelight.vim', { 'on': 'Goyo' }
 
 
 " Multiple cursors
-Plug 'terryma/vim-multiple-cursors'
+Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 
 " Surround
 Plug 'tpope/vim-surround'
