@@ -1,7 +1,8 @@
 #auto-reload yes
 prepopulate-query-feeds yes
 show-read-feeds no
-#run-on-startup set-tag;open
+run-on-startup set-tag;open
+selecttag-format "[%2i] %T (%n unread articles in %f feeds, %u feeds total)"
 
 # colors
 color background          color229   default

@@ -11,7 +11,7 @@ Plug 'itchyny/lightline.vim'
 
 " Color Scheme
 Plug 'morhetz/gruvbox'
-"Plug 'tomasr/molokai'
+Plug 'tomasr/molokai'
 "Plug 'junegunn/seoul256.vim'
 
 " bulk commeter
@@ -21,6 +21,7 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'rust-lang/rust.vim', {'for': 'rust' }
 Plug 'keith/swift.vim', {'for': 'swift' }
 Plug 'sheerun/vim-polyglot'
+Plug 'urbit/hoon.vim'
 
 " show file changes near the line number
 Plug 'airblade/vim-gitgutter'
@@ -36,7 +37,7 @@ Plug 'junegunn/vim-emoji'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 Plug 'tommcdo/vim-fugitive-blame-ext'
-Plug 'stsewd/fzf-checkout.vim'
+"Plug 'stsewd/fzf-checkout.vim'
 
 " Font icons for plugin
 Plug 'ryanoasis/vim-devicons'
@@ -61,10 +62,18 @@ Plug 'tpope/vim-surround'
 " Auto completion
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
+"Snippets
+Plug 'honza/vim-snippets'
+
 " Notes Management
 Plug 'vimwiki/vimwiki', { 'for': 'markdown' }
 Plug 'michal-h21/vim-zettel', { 'for': 'markdown' }
 Plug 'godlygeek/tabular'
+
+" Jypter Notelike environment
+Plug 'jupyter-vim/jupyter-vim'
+Plug 'metakirby5/codi.vim'
+"Plug 'jpalardy/vim-slime'
 
 " css colors
 Plug 'chrisbra/Colorizer'
@@ -77,6 +86,10 @@ Plug 'dhruvasagar/vim-zoom'
 " easily navigate between quickfix,buffers and more
 Plug 'tpope/vim-unimpaired'
 
+" Smooth scrolling
+Plug 'psliwka/vim-smoothie'
+
+" 0.5 features
 "Plug 'neovim/nvim-lspconfig'
 "Plug 'nvim-lua/completion-nvim'
 
@@ -84,6 +97,7 @@ call plug#end()
 
 " Color Scheme
 "let g:molokai_original = 1
+"colorscheme molokai
 colorscheme gruvbox
 
 " leader key and it's bindings
@@ -101,8 +115,10 @@ nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
 nnoremap <leader>x V:!xmllint --format -<cr>:set filetype=xml<cr>
 nnoremap <leader>cc vipyPgvO<Esc>O<Esc>gv:!curl --config -<CR>
 
-nnoremap <leader>n :bnext<cr>
-nnoremap <leader>p :bprev<cr>
+" Sync with os clipboard
+vnoremap <leader>y "*y
+nnoremap <leader>y "*y
+nnoremap <leader>p "*p
 
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
@@ -164,7 +180,7 @@ set softtabstop=4
 set expandtab
 set smarttab
 
-set fileencoding=utf8
+"set fileencoding=utf8
 
 "Set default grep to rg
 set grepprg=rg\ --vimgrep\ --smart-case\ --follow
@@ -183,7 +199,6 @@ if executable('fzf')
     nnoremap <leader>g :FzfGitFiles<cr>
 
     "FZF git checkout plugin
-    let g:fzf_checkout_create_key = 'ctrl-c'
     nnoremap <leader>gc :FzfGCheckout<cr>
 endif
 
