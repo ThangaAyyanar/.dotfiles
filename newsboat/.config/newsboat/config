@@ -37,11 +37,11 @@ highlight article ":.*\\(embedded flash\\)$" magenta default
 
 external-url-viewer "urlview"
 
-browser "open /Applications/Firefox\ Developer\ Edition.app %u";toggle-article-read "read"
+browser "open %u";toggle-article-read "read"
 
 macro o set browser "tmux split-window && tmux send-keys 'w3m %u && tmux kill-pane\n'"; open-in-browser ; set browser "$BROWSER %u"
 macro p set browser "mpv --ontop --no-border --force-window --autofit=800x280 --geometry=-15-10 %u"; open-in-browser ; set browser "$BROWSER %u"
-macro y set browser "echo -n %u | pbcopy"; open-in-browser ; set browser "$BROWSER %u"
+macro y set browser "echo '%u' | pbcopy"; open-in-browser ; set browser "$BROWSER %u"
 
 bind-key j down
 bind-key k up

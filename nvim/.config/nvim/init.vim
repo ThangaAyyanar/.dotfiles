@@ -52,6 +52,8 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 Plug 'junegunn/limelight.vim', { 'on': 'Goyo' }
 
+" Auto pairs
+Plug 'jiangmiao/auto-pairs'
 
 " Multiple cursors
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
@@ -71,8 +73,8 @@ Plug 'michal-h21/vim-zettel', { 'for': 'markdown' }
 Plug 'godlygeek/tabular'
 
 " Jypter Notelike environment
-Plug 'jupyter-vim/jupyter-vim'
-Plug 'metakirby5/codi.vim'
+"Plug 'jupyter-vim/jupyter-vim'
+Plug 'metakirby5/codi.vim', { 'on':  'Codi' }
 "Plug 'jpalardy/vim-slime'
 
 " css colors
@@ -174,9 +176,9 @@ set list
 set listchars=tab:▸\ ,eol:¬
 
 " tab options
-set shiftwidth=4
-set tabstop=4
-set softtabstop=4
+set shiftwidth=2
+set tabstop=2
+set softtabstop=2
 set expandtab
 set smarttab
 
@@ -184,6 +186,9 @@ set smarttab
 
 "Set default grep to rg
 set grepprg=rg\ --vimgrep\ --smart-case\ --follow
+
+"Python
+let g:python3_host_prog = '/usr/bin/python3'
 
 " fzf
 if executable('fzf')

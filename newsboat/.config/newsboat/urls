@@ -31,6 +31,8 @@ https://opensource.com/feed 											"Blog" #"opensource"
 https://opensourceforu.com/feed/ 										"Blog" #"opensource"
 https://gpfault.net/rss.xml 										    "Blog" #"Reverse engineering series"
 https://martinheinz.dev/rss                                             "Blog" #Python
+https://tinyprojects.dev/feed.xml                   "Blog"
+http://amortizedcost.net/rss                        "Blog" # UI Design
 
 ##BLOGS-SECURITY
 
