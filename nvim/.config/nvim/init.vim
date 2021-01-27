@@ -4,7 +4,8 @@ call plug#begin('~/.nvim/plugged')
 
 " File explorer 
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'majutsushi/tagbar', { 'on':  'TagbarToggle' }
+"Plug 'majutsushi/tagbar', { 'on':  'TagbarToggle' }
+Plug 'liuchengxu/vista.vim',{ 'on': 'Vista'}
 
 " Nice status bar
 Plug 'itchyny/lightline.vim'
@@ -111,7 +112,7 @@ nnoremap <leader>sv :source $MYVIMRC<cr>
 
 nnoremap <leader>a :NERDTreeToggle<cr>
 nnoremap <leader><space> :nohlsearch<cr>
-nnoremap <leader>t :TagbarToggle<cr>
+nnoremap <leader>t :Vista!!<cr>
 nnoremap <leader>m :Goyo<cr>
 nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
 nnoremap <leader>x V:!xmllint --format -<cr>:set filetype=xml<cr>
@@ -145,6 +146,7 @@ set termguicolors
 set nostartofline
 set nojoinspaces
 set noswapfile
+set scrolloff=10
 
 set undodir=/tmp
 " not interfere with tmux scroll
@@ -309,6 +311,13 @@ function SetupLightlineColors() abort
   let l:palette.inactive.left = [["#282c34","#ff8c66",235,168,"bold"],["#abb2bf","#3e4452",145,240]]
   call lightline#colorscheme()
 endfunction
+
+" Vista - Tagbar
+let g:vista_icon_indent = ["╰─▸ ", "├─▸ "]
+let g:vista_executive_for = {
+  \ 'swift': 'coc',
+  \ 'dart': 'coc',
+  \ }
 
 " Vim wiki
 let g:vimwiki_list = [{'path': '~/Documents/My Library','syntax': 'markdown','ext': '.md'},{"path":"/Users/thanga-6745/Zoho\ WorkDrive\ \(Enterprise\)/My\ Folders/SlipBox", 'auto_tags': 1, 'auto_toc': 1,'syntax': 'markdown','ext': '.md'}]
