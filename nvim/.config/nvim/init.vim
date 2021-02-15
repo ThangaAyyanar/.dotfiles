@@ -63,9 +63,10 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'tpope/vim-surround'
 
 " Auto completion
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 "Snippets
+Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 
 " Notes Management
@@ -93,9 +94,27 @@ Plug 'tpope/vim-unimpaired'
 Plug 'psliwka/vim-smoothie'
 
 " 0.5 features
-"Plug 'neovim/nvim-lspconfig'
-"Plug 'nvim-lua/completion-nvim'
+Plug 'neovim/nvim-lspconfig'
+Plug 'nvim-lua/completion-nvim'
 
+Plug 'nvim-lua/popup.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+
+" Neovim Tree shitter
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-treesitter/playground'
+
+" Debugging plugin
+Plug 'nvim-telescope/telescope-dap.nvim'
+Plug 'mfussenegger/nvim-dap'
+Plug 'mfussenegger/nvim-dap-python'
+
+"GnuGPG
+Plug 'jamessan/vim-gnupg'
+
+"Cheat.sh integration
+Plug 'dbeniamine/cheat.sh-vim'
 call plug#end()
 
 " Color Scheme
@@ -111,6 +130,7 @@ nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
 nnoremap <leader>a :NERDTreeToggle<cr>
+nnoremap <leader>d :VimwikiDiaryIndex<cr>
 nnoremap <leader><space> :nohlsearch<cr>
 nnoremap <leader>t :Vista!!<cr>
 nnoremap <leader>m :Goyo<cr>
@@ -135,7 +155,57 @@ nnoremap <leader>gh :diffput //3<cr>
 nnoremap <leader>gs :G<cr>
 " dv - on :G to resolve
 
-" Global file search from root directory - ferret
+" Telescope.nvim mapping
+nnoremap <leader>ps :lua require('telescope.builtin').grep_string({ search = vim.fn.input("Grep For > ")})<CR>
+nnoremap <C-p> :lua require('telescope.builtin').git_files()<CR>
+nnoremap <Leader>pf :lua require('telescope.builtin').find_files()<CR>
+
+nnoremap <leader>pw :lua require('telescope.builtin').grep_string { search = vim.fn.expand("<cword>") }<CR>
+nnoremap <leader>pb :lua require('telescope.builtin').buffers()<CR>
+nnoremap <leader>vh :lua require('telescope.builtin').help_tags()<CR>
+
+" Treesitter syntax highlight
+lua require'nvim-treesitter.configs'.setup { highlight = { enable = true } }
+
+set completeopt=menuone,noinsert,noselect
+
+" Lsp configurations
+nnoremap <leader>vd :lua vim.lsp.buf.definition()<CR>
+nnoremap <leader>vi :lua vim.lsp.buf.implementation()<CR>
+nnoremap <leader>vsh :lua vim.lsp.buf.signature_help()<CR>
+nnoremap <leader>vrr :lua vim.lsp.buf.references()<CR>
+nnoremap <leader>vrn :lua vim.lsp.buf.rename()<CR>
+nnoremap <leader>vh :lua vim.lsp.buf.hover()<CR>
+nnoremap <leader>vca :lua vim.lsp.buf.code_action()<CR>
+nnoremap <leader>vsd :lua vim.lsp.util.show_line_diagnostics(); vim.lsp.util.show_line_diagnostics()<CR>
+
+let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
+lua require'lspconfig'.pyright.setup{ on_attach=require'completion'.on_attach }
+lua require'lspconfig'.sourcekit.setup{ on_attach=require'completion'.on_attach }
+lua require'lspconfig'.vimls.setup{ on_attach=require'completion'.on_attach }
+
+" Ultisnips in autocompletion
+let g:completion_enable_snippet = 'UltiSnips'
+
+" Debugging Initialization
+lua require('telescope').load_extension('dap')
+lua require('dap-python').setup('/usr/bin/python3')
+
+" Debugging
+nnoremap <silent> <F5> :lua require'dap'.continue()<CR>
+nnoremap <silent> <leader>dd :lua require('dap').continue()<CR>
+nnoremap <silent> <F10> :lua require'dap'.step_over()<CR>
+nnoremap <silent> <F11> :lua require'dap'.step_into()<CR>
+nnoremap <silent> <F12> :lua require'dap'.step_out()<CR>
+nnoremap <silent> <leader>b :lua require'dap'.toggle_breakpoint()<CR>
+nnoremap <silent> <leader>B :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+nnoremap <silent> <leader>lp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
+nnoremap <silent> <leader>dl :lua require'dap'.repl.run_last()<CR>`
+
+" Python specific debugging
+nnoremap <silent> <leader>dn :lua require('dap-python').test_method()<CR>
+vnoremap <silent> <leader>ds <ESC>:lua require('dap-python').debug_selection()<CR>
 
 set cursorline
 set number
@@ -147,6 +217,7 @@ set nostartofline
 set nojoinspaces
 set noswapfile
 set scrolloff=10
+set nowrap
 
 set undodir=/tmp
 " not interfere with tmux scroll
@@ -200,7 +271,7 @@ if executable('fzf')
     let g:fzf_layout = {'up':'~90%', 'window': { 'width': 0.8, 'height': 0.8,'yoffset':0.5,'xoffset': 0.5, 'highlight': 'Todo', 'border': 'sharp' } }
     let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
     let $FZF_DEFAULT_COMMAND="rg --files --hidden" 
-    nnoremap <c-p> :FzfFiles<cr>
+    "nnoremap <c-p> :FzfFiles<cr>
     nnoremap <space><space> :FzfBuffers<cr>
     nnoremap <leader>f :FzfRg<cr>
     nnoremap <leader>g :FzfGitFiles<cr>
@@ -294,12 +365,11 @@ let g:lightline = {
       \ 'colorscheme': 'one',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'githunk','gitbranch', 'cocstatus', 'readonly', 'filename', 'modified' ] ]
+      \             [ 'githunk','gitbranch', 'readonly', 'filename', 'modified' ] ]
       \ },
       \ 'component_function': {
       \   'githunk': 'LightlineGitGutter',
       \   'gitbranch': 'fugitive#head',
-      \   'cocstatus': 'coc#status'
       \ },
       \ }
 
@@ -314,13 +384,13 @@ endfunction
 
 " Vista - Tagbar
 let g:vista_icon_indent = ["╰─▸ ", "├─▸ "]
-let g:vista_executive_for = {
-  \ 'swift': 'coc',
-  \ 'dart': 'coc',
-  \ }
+"let g:vista_executive_for = {
+  "\ 'swift': 'coc',
+  "\ 'dart': 'coc',
+  "\ }
 
 " Vim wiki
-let g:vimwiki_list = [{'path': '~/Documents/My Library','syntax': 'markdown','ext': '.md'},{"path":"/Users/thanga-6745/Zoho\ WorkDrive\ \(Enterprise\)/My\ Folders/SlipBox", 'auto_tags': 1, 'auto_toc': 1,'syntax': 'markdown','ext': '.md'}]
+let g:vimwiki_list = [{'path': '~/Documents/My Library','auto_diary_index': 1,'syntax': 'markdown','ext': '.md'},{"path":"/Users/thanga-6745/Zoho\ WorkDrive\ \(Enterprise\)/My\ Folders/SlipBox", 'auto_tags': 1, 'auto_toc': 1,'syntax': 'markdown','ext': '.md'}]
 let g:vimwiki_ext2syntax = {'.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
 
 "vim-zettel
@@ -397,93 +467,93 @@ set signcolumn=yes
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+"inoremap <silent><expr> <TAB>
+      "\ pumvisible() ? "\<C-n>" :
+      "\ <SID>check_back_space() ? "\<TAB>" :
+      "\ coc#refresh()
+"inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
+"function! s:check_back_space() abort
+  "let col = col('.') - 1
+  "return !col || getline('.')[col - 1]  =~# '\s'
+"endfunction
 
-" Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
+"" Use <c-space> to trigger completion.
+"inoremap <silent><expr> <c-space> coc#refresh()
 
-" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
-" position. Coc only does snippet and additional edit on confirm.
-" <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
-if exists('*complete_info')
-  inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
-else
-  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-endif
+"" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
+"" position. Coc only does snippet and additional edit on confirm.
+"" <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
+"if exists('*complete_info')
+  "inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+"else
+  "inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+"endif
 
-" Use `[g` and `]g` to navigate diagnostics
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
+"" Use `[g` and `]g` to navigate diagnostics
+"nmap <silent> [g <Plug>(coc-diagnostic-prev)
+"nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
-" GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+"" GoTo code navigation.
+"nmap <silent> gd <Plug>(coc-definition)
+"nmap <silent> gy <Plug>(coc-type-definition)
+"nmap <silent> gi <Plug>(coc-implementation)
+"nmap <silent> gr <Plug>(coc-references)
 
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
+"" Use K to show documentation in preview window.
+"nnoremap <silent> K :call <SID>show_documentation()<CR>
 
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  else
-    call CocAction('doHover')
-  endif
-endfunction
+"function! s:show_documentation()
+  "if (index(['vim','help'], &filetype) >= 0)
+    "execute 'h '.expand('<cword>')
+  "else
+    "call CocAction('doHover')
+  "endif
+"endfunction
 
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
+"" Highlight the symbol and its references when holding the cursor.
+"autocmd CursorHold * silent call CocActionAsync('highlight')
 
-" Symbol renaming.
-nmap <leader>rn <Plug>(coc-rename)
-nnoremap <leader>cs :CocSearch <C-R>=expand("<cword>")<CR><CR>
+"" Symbol renaming.
+"nmap <leader>rn <Plug>(coc-rename)
+"nnoremap <leader>cs :CocSearch <C-R>=expand("<cword>")<CR><CR>
 
-" Formatting selected code.
-xmap <leader>=  <Plug>(coc-format-selected)
-nmap <leader>=  <Plug>(coc-format-selected)
+"" Formatting selected code.
+"xmap <leader>=  <Plug>(coc-format-selected)
+"nmap <leader>=  <Plug>(coc-format-selected)
 
-augroup mygroup
-  autocmd!
-  " Setup formatexpr specified filetype(s).
-  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-  " Update signature help on jump placeholder.
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-augroup end
+"augroup mygroup
+  "autocmd!
+  "" Setup formatexpr specified filetype(s).
+  "autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  "" Update signature help on jump placeholder.
+  "autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+"augroup end
 
-" Applying codeAction to the selected region.
-" Example: `<leader>aap` for current paragraph
-"xmap <leader>a  <Plug>(coc-codeaction-selected)
-"nmap <leader>a  <Plug>(coc-codeaction-selected)
+"" Applying codeAction to the selected region.
+"" Example: `<leader>aap` for current paragraph
+""xmap <leader>a  <Plug>(coc-codeaction-selected)
+""nmap <leader>a  <Plug>(coc-codeaction-selected)
 
-" Remap keys for applying codeAction to the current line.
-nmap <leader>ac  <Plug>(coc-codeaction)
-" Apply AutoFix to problem on the current line.
-nmap <leader>qf  <Plug>(coc-fix-current)
+"" Remap keys for applying codeAction to the current line.
+"nmap <leader>ac  <Plug>(coc-codeaction)
+"" Apply AutoFix to problem on the current line.
+"nmap <leader>qf  <Plug>(coc-fix-current)
 
-" Introduce function text object
-" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-xmap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap if <Plug>(coc-funcobj-i)
-omap af <Plug>(coc-funcobj-a)
+"" Introduce function text object
+"" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+"xmap if <Plug>(coc-funcobj-i)
+"xmap af <Plug>(coc-funcobj-a)
+"omap if <Plug>(coc-funcobj-i)
+"omap af <Plug>(coc-funcobj-a)
 
 
-" Add `:Format` command to format current buffer.
-command! -nargs=0 Format :call CocAction('format')
+"" Add `:Format` command to format current buffer.
+"command! -nargs=0 Format :call CocAction('format')
 
-" Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+"" Add `:Fold` command to fold current buffer.
+"command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 
-" Add `:OR` command for organize imports of the current buffer.
-command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+"" Add `:OR` command for organize imports of the current buffer.
+"command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
 

@@ -33,6 +33,7 @@ https://gpfault.net/rss.xml 										    "Blog" #"Reverse engineering series"
 https://martinheinz.dev/rss                                             "Blog" #Python
 https://tinyprojects.dev/feed.xml                   "Blog"
 http://amortizedcost.net/rss                        "Blog" # UI Design
+https://tenthousandmeters.com/feeds/all.atom.xml    "Blog" #"Python Internals"
 
 ##BLOGS-SECURITY
 
