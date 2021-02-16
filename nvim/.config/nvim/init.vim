@@ -4,16 +4,14 @@ call plug#begin('~/.nvim/plugged')
 
 " File explorer 
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-"Plug 'majutsushi/tagbar', { 'on':  'TagbarToggle' }
 Plug 'liuchengxu/vista.vim',{ 'on': 'Vista'}
 
 " Nice status bar
 Plug 'itchyny/lightline.vim'
 
 " Color Scheme
-Plug 'morhetz/gruvbox'
+Plug 'gruvbox-community/gruvbox'
 Plug 'tomasr/molokai'
-"Plug 'junegunn/seoul256.vim'
 
 " bulk commeter
 Plug 'scrooloose/nerdcommenter'
@@ -49,10 +47,6 @@ Plug 'mhinz/vim-startify'
 " tmux integration
 Plug 'christoomey/vim-tmux-navigator'
 
-" Goyo integration - distraction free writing
-Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
-Plug 'junegunn/limelight.vim', { 'on': 'Goyo' }
-
 " Auto pairs
 Plug 'jiangmiao/auto-pairs'
 
@@ -61,9 +55,6 @@ Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 
 " Surround
 Plug 'tpope/vim-surround'
-
-" Auto completion
-"Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 "Snippets
 Plug 'SirVer/ultisnips'
@@ -84,18 +75,16 @@ Plug 'chrisbra/Colorizer'
 
 Plug 'RRethy/vim-illuminate'
 
-" zoom in zoom out window
-" also check https://vim.fandom.com/wiki/Window_zooming_convenience
-Plug 'dhruvasagar/vim-zoom'
 " easily navigate between quickfix,buffers and more
 Plug 'tpope/vim-unimpaired'
 
 " Smooth scrolling
 Plug 'psliwka/vim-smoothie'
 
-" 0.5 features
+" Language Server Protcol
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/completion-nvim'
+Plug 'steelsojka/completion-buffers'
 
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
@@ -130,10 +119,10 @@ nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
 nnoremap <leader>a :NERDTreeToggle<cr>
-nnoremap <leader>d :VimwikiDiaryIndex<cr>
+nnoremap <leader>wd :VimwikiDiaryIndex<cr>
+nnoremap <leader>wgt :VimwikiRebuildTags!<cr>:VimwikiGenerateTagLinks<cr><c-l>
 nnoremap <leader><space> :nohlsearch<cr>
 nnoremap <leader>t :Vista!!<cr>
-nnoremap <leader>m :Goyo<cr>
 nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
 nnoremap <leader>x V:!xmllint --format -<cr>:set filetype=xml<cr>
 nnoremap <leader>cc vipyPgvO<Esc>O<Esc>gv:!curl --config -<CR>
@@ -153,6 +142,10 @@ nnoremap <leader>gg :diffget<cr>
 nnoremap <leader>gf :diffget //2<cr>
 nnoremap <leader>gh :diffput //3<cr>
 nnoremap <leader>gs :G<cr>
+
+"copy current path
+nnoremap <leader>cp :let @" = expand("%")<cr>
+
 " dv - on :G to resolve
 
 " Telescope.nvim mapping
@@ -183,6 +176,15 @@ let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
 lua require'lspconfig'.pyright.setup{ on_attach=require'completion'.on_attach }
 lua require'lspconfig'.sourcekit.setup{ on_attach=require'completion'.on_attach }
 lua require'lspconfig'.vimls.setup{ on_attach=require'completion'.on_attach }
+lua require'lspconfig'.dartls.setup{ on_attach=require'completion'.on_attach }
+
+autocmd BufEnter * lua require'completion'.on_attach()
+
+let g:completion_chain_complete_list = [
+    \{'complete_items': ['lsp', 'snippet', 'buffers']},
+    \{'mode': '<c-p>'},
+    \{'mode': '<c-n>'}
+\]
 
 " Ultisnips in autocompletion
 let g:completion_enable_snippet = 'UltiSnips'
@@ -217,6 +219,7 @@ set nostartofline
 set nojoinspaces
 set noswapfile
 set scrolloff=10
+set sidescrolloff=10
 set nowrap
 
 set undodir=/tmp
@@ -276,8 +279,6 @@ if executable('fzf')
     nnoremap <leader>f :FzfRg<cr>
     nnoremap <leader>g :FzfGitFiles<cr>
 
-    "FZF git checkout plugin
-    nnoremap <leader>gc :FzfGCheckout<cr>
 endif
 
 " quickly insert a timestamp
@@ -304,15 +305,6 @@ nnoremap <leader><leader> <Esc>/<++><Enter>"_c4l
 set foldmethod=indent
 set foldlevel=1
 highlight Folded guifg=PeachPuff4
-
-" Goyo Configuration
-function! s:goyo_enter()
-    colorscheme gruvbox
-    Limelight
-endfunction
-
-autocmd! User GoyoEnter nested call <SID>goyo_enter()
-autocmd! User GoyoLeave Limelight!
 
 " Terminal Enter and close
 function Terminal_enter()
@@ -384,10 +376,9 @@ endfunction
 
 " Vista - Tagbar
 let g:vista_icon_indent = ["╰─▸ ", "├─▸ "]
-"let g:vista_executive_for = {
-  "\ 'swift': 'coc',
-  "\ 'dart': 'coc',
-  "\ }
+let g:vista_executive_for = {
+  \ 'dart': 'vim_lsp',
+  \ }
 
 " Vim wiki
 let g:vimwiki_list = [{'path': '~/Documents/My Library','auto_diary_index': 1,'syntax': 'markdown','ext': '.md'},{"path":"/Users/thanga-6745/Zoho\ WorkDrive\ \(Enterprise\)/My\ Folders/SlipBox", 'auto_tags': 1, 'auto_toc': 1,'syntax': 'markdown','ext': '.md'}]
@@ -463,97 +454,4 @@ set shortmess+=c
 " Always show the signcolumn, otherwise it would shift the text each time
 " diagnostics appear/become resolved.
 set signcolumn=yes
-
-" Use tab for trigger completion with characters ahead and navigate.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
-"inoremap <silent><expr> <TAB>
-      "\ pumvisible() ? "\<C-n>" :
-      "\ <SID>check_back_space() ? "\<TAB>" :
-      "\ coc#refresh()
-"inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-"function! s:check_back_space() abort
-  "let col = col('.') - 1
-  "return !col || getline('.')[col - 1]  =~# '\s'
-"endfunction
-
-"" Use <c-space> to trigger completion.
-"inoremap <silent><expr> <c-space> coc#refresh()
-
-"" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
-"" position. Coc only does snippet and additional edit on confirm.
-"" <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
-"if exists('*complete_info')
-  "inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
-"else
-  "inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-"endif
-
-"" Use `[g` and `]g` to navigate diagnostics
-"nmap <silent> [g <Plug>(coc-diagnostic-prev)
-"nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-"" GoTo code navigation.
-"nmap <silent> gd <Plug>(coc-definition)
-"nmap <silent> gy <Plug>(coc-type-definition)
-"nmap <silent> gi <Plug>(coc-implementation)
-"nmap <silent> gr <Plug>(coc-references)
-
-"" Use K to show documentation in preview window.
-"nnoremap <silent> K :call <SID>show_documentation()<CR>
-
-"function! s:show_documentation()
-  "if (index(['vim','help'], &filetype) >= 0)
-    "execute 'h '.expand('<cword>')
-  "else
-    "call CocAction('doHover')
-  "endif
-"endfunction
-
-"" Highlight the symbol and its references when holding the cursor.
-"autocmd CursorHold * silent call CocActionAsync('highlight')
-
-"" Symbol renaming.
-"nmap <leader>rn <Plug>(coc-rename)
-"nnoremap <leader>cs :CocSearch <C-R>=expand("<cword>")<CR><CR>
-
-"" Formatting selected code.
-"xmap <leader>=  <Plug>(coc-format-selected)
-"nmap <leader>=  <Plug>(coc-format-selected)
-
-"augroup mygroup
-  "autocmd!
-  "" Setup formatexpr specified filetype(s).
-  "autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-  "" Update signature help on jump placeholder.
-  "autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-"augroup end
-
-"" Applying codeAction to the selected region.
-"" Example: `<leader>aap` for current paragraph
-""xmap <leader>a  <Plug>(coc-codeaction-selected)
-""nmap <leader>a  <Plug>(coc-codeaction-selected)
-
-"" Remap keys for applying codeAction to the current line.
-"nmap <leader>ac  <Plug>(coc-codeaction)
-"" Apply AutoFix to problem on the current line.
-"nmap <leader>qf  <Plug>(coc-fix-current)
-
-"" Introduce function text object
-"" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-"xmap if <Plug>(coc-funcobj-i)
-"xmap af <Plug>(coc-funcobj-a)
-"omap if <Plug>(coc-funcobj-i)
-"omap af <Plug>(coc-funcobj-a)
-
-
-"" Add `:Format` command to format current buffer.
-"command! -nargs=0 Format :call CocAction('format')
-
-"" Add `:Fold` command to fold current buffer.
-"command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
-"" Add `:OR` command for organize imports of the current buffer.
-"command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
 
