@@ -10,8 +10,8 @@ Plug 'liuchengxu/vista.vim',{ 'on': 'Vista'}
 Plug 'itchyny/lightline.vim'
 
 " Color Scheme
-Plug 'gruvbox-community/gruvbox'
-Plug 'tomasr/molokai'
+Plug 'glepnir/zephyr-nvim'
+Plug 'sainnhe/gruvbox-material'
 
 " bulk commeter
 Plug 'scrooloose/nerdcommenter'
@@ -48,7 +48,8 @@ Plug 'mhinz/vim-startify'
 Plug 'christoomey/vim-tmux-navigator'
 
 " Auto pairs
-Plug 'jiangmiao/auto-pairs'
+"Plug 'jiangmiao/auto-pairs'
+Plug 'Raimondi/delimitMate'
 
 " Multiple cursors
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
@@ -64,6 +65,7 @@ Plug 'honza/vim-snippets'
 Plug 'vimwiki/vimwiki', { 'for': 'markdown' }
 Plug 'michal-h21/vim-zettel', { 'for': 'markdown' }
 Plug 'godlygeek/tabular'
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  ,'for': 'markdown'}
 
 " Jypter Notelike environment
 "Plug 'jupyter-vim/jupyter-vim'
@@ -99,8 +101,18 @@ Plug 'nvim-telescope/telescope-dap.nvim'
 Plug 'mfussenegger/nvim-dap'
 Plug 'mfussenegger/nvim-dap-python'
 
+" Testing plugin
+Plug 'vim-test/vim-test'
+
+" Rest API client
+Plug 'baverman/vial'
+Plug 'ThangaAyyanar/vial-http'
+
 "GnuGPG
 Plug 'jamessan/vim-gnupg'
+
+" Undotree
+Plug 'mbbill/undotree', { 'on':  'UndotreeToggle' }
 
 "Cheat.sh integration
 Plug 'dbeniamine/cheat.sh-vim'
@@ -109,7 +121,8 @@ call plug#end()
 " Color Scheme
 "let g:molokai_original = 1
 "colorscheme molokai
-colorscheme gruvbox
+colorscheme gruvbox-material
+autocmd BufEnter *.md colorscheme zephyr
 
 " leader key and it's bindings
 
@@ -119,13 +132,14 @@ nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
 nnoremap <leader>a :NERDTreeToggle<cr>
-nnoremap <leader>wd :VimwikiDiaryIndex<cr>
+nnoremap <leader>d :VimwikiDiaryIndex<cr>
 nnoremap <leader>wgt :VimwikiRebuildTags!<cr>:VimwikiGenerateTagLinks<cr><c-l>
 nnoremap <leader><space> :nohlsearch<cr>
 nnoremap <leader>t :Vista!!<cr>
+nnoremap <leader>u :UndotreeToggle<CR>
 nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
 nnoremap <leader>x V:!xmllint --format -<cr>:set filetype=xml<cr>
-nnoremap <leader>cc vipyPgvO<Esc>O<Esc>gv:!curl --config -<CR>
+nnoremap <leader>ac vipyPgvO<Esc>O<Esc>gv:!curl --config -<CR>
 
 " Sync with os clipboard
 vnoremap <leader>y "*y
@@ -208,6 +222,15 @@ nnoremap <silent> <leader>dl :lua require'dap'.repl.run_last()<CR>`
 " Python specific debugging
 nnoremap <silent> <leader>dn :lua require('dap-python').test_method()<CR>
 vnoremap <silent> <leader>ds <ESC>:lua require('dap-python').debug_selection()<CR>
+
+nnoremap <silent> <leader>tn :TestNearest<CR>
+"nnoremap <silent> t<C-f> :TestFile<CR>
+"nnoremap <silent> t<C-s> :TestSuite<CR>
+"nnoremap <silent> t<C-l> :TestLast<CR>
+"nnoremap <silent> t<C-g> :TestVisit<CR>
+
+let test#strategy = "neovim"
+let test#neovim#term_position = "bot"
 
 set cursorline
 set number
@@ -302,8 +325,9 @@ inoremap <leader><leader> <Esc>/<++><Enter>"_c4l
 nnoremap <leader><leader> <Esc>/<++><Enter>"_c4l
 
 "foldding the content
-set foldmethod=indent
 set foldlevel=1
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
 highlight Folded guifg=PeachPuff4
 
 " Terminal Enter and close
@@ -381,6 +405,7 @@ let g:vista_executive_for = {
   \ }
 
 " Vim wiki
+let g:vimwiki_global_ext = 0
 let g:vimwiki_list = [{'path': '~/Documents/My Library','auto_diary_index': 1,'syntax': 'markdown','ext': '.md'},{"path":"/Users/thanga-6745/Zoho\ WorkDrive\ \(Enterprise\)/My\ Folders/SlipBox", 'auto_tags': 1, 'auto_toc': 1,'syntax': 'markdown','ext': '.md'}]
 let g:vimwiki_ext2syntax = {'.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
 
@@ -431,6 +456,12 @@ function TodoTaskAdd()
     execute '!task rc.data.location=~/TaskBase/Office add '.task.' +Todo project:Remainder'
     execute '!task rc.data.location=~/TaskBase/Office +LATEST annotate "file:'.annotation.':'.lineNumber.'"'
 endfunction
+
+function GitFileDiff(msg)
+  Gvdiffsplit "'.msg.':%"
+endfunction
+
+:command -nargs=1 -complete=customlist,fugitive#EditComplete Gfilediff call GitFileDiff(<q-args>)
 
 " COC SETUP
 
