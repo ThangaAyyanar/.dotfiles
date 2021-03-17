@@ -20,14 +20,17 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'rust-lang/rust.vim', {'for': 'rust' }
 Plug 'keith/swift.vim', {'for': 'swift' }
 Plug 'sheerun/vim-polyglot'
-Plug 'urbit/hoon.vim'
+Plug 'urbit/hoon.vim', {'for': 'hoon'}
+" Beancount
+Plug 'nathangrigg/vim-beancount',{'for': 'beancount'}
+
 
 " show file changes near the line number
 Plug 'airblade/vim-gitgutter'
 
 " Fuzzy finder
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim'
+"Plug 'junegunn/fzf'
+"Plug 'junegunn/fzf.vim'
 
 " Emoji's
 Plug 'junegunn/vim-emoji'
@@ -64,7 +67,7 @@ Plug 'honza/vim-snippets'
 " Notes Management
 Plug 'vimwiki/vimwiki', { 'for': 'markdown' }
 Plug 'michal-h21/vim-zettel', { 'for': 'markdown' }
-Plug 'godlygeek/tabular'
+Plug 'godlygeek/tabular', { 'for': 'markdown' }
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  ,'for': 'markdown'}
 
 " Jypter Notelike environment
@@ -73,6 +76,7 @@ Plug 'metakirby5/codi.vim', { 'on':  'Codi' }
 "Plug 'jpalardy/vim-slime'
 
 " css colors
+" you need to type :ColorHighlight to activate this plugin
 Plug 'chrisbra/Colorizer'
 
 Plug 'RRethy/vim-illuminate'
@@ -105,8 +109,8 @@ Plug 'mfussenegger/nvim-dap-python'
 Plug 'vim-test/vim-test'
 
 " Rest API client
-Plug 'baverman/vial'
-Plug 'ThangaAyyanar/vial-http'
+Plug 'baverman/vial', {'for': 'vial-http'}
+Plug 'ThangaAyyanar/vial-http', {'for': 'vial-http'}
 
 "GnuGPG
 Plug 'jamessan/vim-gnupg'
@@ -132,7 +136,6 @@ nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
 nnoremap <leader>a :NERDTreeToggle<cr>
-nnoremap <leader>d :VimwikiDiaryIndex<cr>
 nnoremap <leader>wgt :VimwikiRebuildTags!<cr>:VimwikiGenerateTagLinks<cr><c-l>
 nnoremap <leader><space> :nohlsearch<cr>
 nnoremap <leader>t :Vista!!<cr>
@@ -140,6 +143,12 @@ nnoremap <leader>u :UndotreeToggle<CR>
 nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
 nnoremap <leader>x V:!xmllint --format -<cr>:set filetype=xml<cr>
 nnoremap <leader>ac vipyPgvO<Esc>O<Esc>gv:!curl --config -<CR>
+" Close all folds and open and focus on fold containing current line
+nnoremap <Leader>z zMzvzz
+" Map to use marker folding
+nnoremap <silent> <Leader>mf :set foldmethod=marker<CR>zv
+" Change quote and back tick for easy navigation to marks
+noremap ' `
 
 " Sync with os clipboard
 vnoremap <leader>y "*y
@@ -149,9 +158,6 @@ nnoremap <leader>p "*p
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
 
-map <leader>- :<c-u>split<cr>
-map <leader>\ :<c-u>vsplit<cr>
-
 nnoremap <leader>gg :diffget<cr>
 nnoremap <leader>gf :diffget //2<cr>
 nnoremap <leader>gh :diffput //3<cr>
@@ -159,6 +165,9 @@ nnoremap <leader>gs :G<cr>
 
 "copy current path
 nnoremap <leader>cp :let @" = expand("%")<cr>
+
+" Paste system clipboard to command line
+cnoremap <A-p> <C-R>"
 
 " dv - on :G to resolve
 
@@ -168,8 +177,6 @@ nnoremap <C-p> :lua require('telescope.builtin').git_files()<CR>
 nnoremap <Leader>pf :lua require('telescope.builtin').find_files()<CR>
 
 nnoremap <leader>pw :lua require('telescope.builtin').grep_string { search = vim.fn.expand("<cword>") }<CR>
-nnoremap <leader>pb :lua require('telescope.builtin').buffers()<CR>
-nnoremap <leader>vh :lua require('telescope.builtin').help_tags()<CR>
 
 " Treesitter syntax highlight
 lua require'nvim-treesitter.configs'.setup { highlight = { enable = true } }
@@ -245,6 +252,9 @@ set scrolloff=10
 set sidescrolloff=10
 set nowrap
 
+" Don't update the display while executing macros
+set lazyredraw
+
 set undodir=/tmp
 " not interfere with tmux scroll
 set mouse=a
@@ -289,30 +299,15 @@ set grepprg=rg\ --vimgrep\ --smart-case\ --follow
 "Python
 let g:python3_host_prog = '/usr/bin/python3'
 
-" fzf
-if executable('fzf')
-    " All commands provided by fzf will have this prefix
-    let g:fzf_command_prefix = 'Fzf'
-    " Border color
-    let g:fzf_layout = {'up':'~90%', 'window': { 'width': 0.8, 'height': 0.8,'yoffset':0.5,'xoffset': 0.5, 'highlight': 'Todo', 'border': 'sharp' } }
-    let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
-    let $FZF_DEFAULT_COMMAND="rg --files --hidden" 
-    "nnoremap <c-p> :FzfFiles<cr>
-    nnoremap <space><space> :FzfBuffers<cr>
-    nnoremap <leader>f :FzfRg<cr>
-    nnoremap <leader>g :FzfGitFiles<cr>
-
-endif
-
 " quickly insert a timestamp
-nnoremap tt "=strftime("%d %b %y %x")<cr>p
+nnoremap tt "=strftime("%Y-%m-%d")<cr>p
 
 " enable vim sign column
 set signcolumn=yes
 
 " column limit
 "set textwidth=80
-set colorcolumn=80
+set colorcolumn=81
 
 set splitbelow
 set splitright
@@ -420,20 +415,6 @@ nnoremap <leader>zl :ZettelSearch<cr>
 nnoremap <leader>zn :ZettelNew<cr><cr>:4d<cr>:w<cr>ggA
 nnoremap <leader>bl :VimwikiBacklinks<cr>
 
-"{{{Tabular plugin tricks
-inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
-
-function! s:align()
-  let p = '^\s*|\s.*\s|\s*$'
-  if exists(':Tabularize') && getline('.') =~# '^\s*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
-    let column = strlen(substitute(getline('.')[0:col('.')],'[^|]','','g'))
-    let position = strlen(matchstr(getline('.')[0:col('.')],'.*|\s*\zs.*'))
-    Tabularize/|/l1
-    normal! 0
-    call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
-  endif
-endfunction
-"}}}
 
 " git gutter setups
 let g:gitgutter_sign_added = emoji#for('small_blue_diamond')
@@ -463,8 +444,6 @@ endfunction
 
 :command -nargs=1 -complete=customlist,fugitive#EditComplete Gfilediff call GitFileDiff(<q-args>)
 
-" COC SETUP
-
 " TextEdit might fail if hidden is not set.
 set hidden
 
@@ -482,7 +461,11 @@ set updatetime=300
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
 
-" Always show the signcolumn, otherwise it would shift the text each time
-" diagnostics appear/become resolved.
-set signcolumn=yes
+let g:codi#virtual_text = 0
+let g:codi#rightalign = 0
+let g:codi#interpreters = {
+                   \ 'python': {
+                       \ 'bin': '/usr/bin/python3',
+                       \ },
+                   \ }
 
