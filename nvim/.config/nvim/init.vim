@@ -12,6 +12,7 @@ Plug 'itchyny/lightline.vim'
 " Color Scheme
 Plug 'glepnir/zephyr-nvim'
 Plug 'sainnhe/gruvbox-material'
+Plug 'folke/tokyonight.nvim'
 
 " bulk commeter
 Plug 'scrooloose/nerdcommenter'
@@ -92,6 +93,7 @@ Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/completion-nvim'
 Plug 'steelsojka/completion-buffers'
 
+" Fuzzy finder
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
@@ -118,8 +120,12 @@ Plug 'jamessan/vim-gnupg'
 " Undotree
 Plug 'mbbill/undotree', { 'on':  'UndotreeToggle' }
 
+" Which key
+Plug 'liuchengxu/vim-which-key'
+
 "Cheat.sh integration
 Plug 'dbeniamine/cheat.sh-vim'
+
 call plug#end()
 
 " Color Scheme
@@ -138,13 +144,15 @@ nnoremap <leader>sv :source $MYVIMRC<cr>
 nnoremap <leader>a :NERDTreeToggle<cr>
 nnoremap <leader>wgt :VimwikiRebuildTags!<cr>:VimwikiGenerateTagLinks<cr><c-l>
 nnoremap <leader><space> :nohlsearch<cr>
+nnoremap <leader>n :bn<cr>
+nnoremap <leader>N :bp<cr>
 nnoremap <leader>t :Vista!!<cr>
 nnoremap <leader>u :UndotreeToggle<CR>
 nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
 nnoremap <leader>x V:!xmllint --format -<cr>:set filetype=xml<cr>
 nnoremap <leader>ac vipyPgvO<Esc>O<Esc>gv:!curl --config -<CR>
 " Close all folds and open and focus on fold containing current line
-nnoremap <Leader>z zMzvzz
+nnoremap <Leader>z zMzrzOzz
 " Map to use marker folding
 nnoremap <silent> <Leader>mf :set foldmethod=marker<CR>zv
 " Change quote and back tick for easy navigation to marks
@@ -154,6 +162,9 @@ noremap ' `
 vnoremap <leader>y "*y
 nnoremap <leader>y "*y
 nnoremap <leader>p "*p
+
+nnoremap H gT
+nnoremap L gt
 
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
@@ -198,6 +209,7 @@ lua require'lspconfig'.pyright.setup{ on_attach=require'completion'.on_attach }
 lua require'lspconfig'.sourcekit.setup{ on_attach=require'completion'.on_attach }
 lua require'lspconfig'.vimls.setup{ on_attach=require'completion'.on_attach }
 lua require'lspconfig'.dartls.setup{ on_attach=require'completion'.on_attach }
+lua require'lspconfig'.nimls.setup{ on_attach=require'completion'.on_attach }
 
 autocmd BufEnter * lua require'completion'.on_attach()
 
@@ -235,6 +247,13 @@ nnoremap <silent> <leader>tn :TestNearest<CR>
 "nnoremap <silent> t<C-s> :TestSuite<CR>
 "nnoremap <silent> t<C-l> :TestLast<CR>
 "nnoremap <silent> t<C-g> :TestVisit<CR>
+
+" which key settings
+set timeoutlen=500
+let g:which_key_map =  {}
+call which_key#register(',', "g:which_key_map")
+nnoremap <silent> <leader> :<c-u>WhichKey ','<CR>
+vnoremap <silent> <leader> :<c-u>WhichKeyVisual ','<CR>
 
 let test#strategy = "neovim"
 let test#neovim#term_position = "bot"
