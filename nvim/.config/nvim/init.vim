@@ -43,7 +43,8 @@ Plug 'tommcdo/vim-fugitive-blame-ext'
 "Plug 'stsewd/fzf-checkout.vim'
 
 " Font icons for plugin
-Plug 'ryanoasis/vim-devicons'
+"Plug 'ryanoasis/vim-devicons'
+Plug 'kyazdani42/nvim-web-devicons'
 
 " start up screen for vim
 Plug 'mhinz/vim-startify'
@@ -97,6 +98,7 @@ Plug 'steelsojka/completion-buffers'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 
 " Neovim Tree shitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -126,6 +128,9 @@ Plug 'liuchengxu/vim-which-key'
 "Cheat.sh integration
 Plug 'dbeniamine/cheat.sh-vim'
 
+" dasht integration
+Plug 'sunaku/vim-dasht'
+
 call plug#end()
 
 " Color Scheme
@@ -140,6 +145,7 @@ let mapleader = ","
 
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
+"nnoremap <leader>sv :source $MYVIMRC<cr>:lua package.loaded.sample=nil<cr>
 
 nnoremap <leader>a :NERDTreeToggle<cr>
 nnoremap <leader>wgt :VimwikiRebuildTags!<cr>:VimwikiGenerateTagLinks<cr><c-l>
@@ -148,7 +154,8 @@ nnoremap <leader>n :bn<cr>
 nnoremap <leader>N :bp<cr>
 nnoremap <leader>t :Vista!!<cr>
 nnoremap <leader>u :UndotreeToggle<CR>
-nnoremap <leader>j V:!jq<cr>:set filetype=json<cr>
+nnoremap <leader>j V:!jq<cr>
+nnoremap <leader>J V:!jq<cr>:set filetype=json<cr>
 nnoremap <leader>x V:!xmllint --format -<cr>:set filetype=xml<cr>
 nnoremap <leader>ac vipyPgvO<Esc>O<Esc>gv:!curl --config -<CR>
 " Close all folds and open and focus on fold containing current line
@@ -183,11 +190,17 @@ cnoremap <A-p> <C-R>"
 " dv - on :G to resolve
 
 " Telescope.nvim mapping
-nnoremap <leader>ps :lua require('telescope.builtin').grep_string({ search = vim.fn.input("Grep For > ")})<CR>
-nnoremap <C-p> :lua require('telescope.builtin').git_files()<CR>
-nnoremap <Leader>pf :lua require('telescope.builtin').find_files()<CR>
+nnoremap <leader>sgs :lua require('telescope.builtin').grep_string({ search = vim.fn.input("Grep For > ")})<CR>
+nnoremap <C-p> :lua require('telescope.builtin').find_files()<CR>
+nnoremap <leader>sgf :lua require('telescope.builtin').git_files()<CR>
 
-nnoremap <leader>pw :lua require('telescope.builtin').grep_string { search = vim.fn.expand("<cword>") }<CR>
+nnoremap <leader>sgc :lua require('telescope.builtin').grep_string { search = vim.fn.expand("<cword>") }<CR>
+"nnoremap <c-_> <cmd>lua require('telescope.builtin').current_buffer_fuzzy_find({sorting_strategy="ascending",prompt_position="top"})<cr>
+
+lua require('sample')
+lua require('beancount')
+nnoremap <c-_> <cmd>lua require('sample').curr_buf()<cr>
+" c-_ is c-/ due hash tag stuffs
 
 " Treesitter syntax highlight
 lua require'nvim-treesitter.configs'.setup { highlight = { enable = true } }
@@ -224,7 +237,12 @@ let g:completion_enable_snippet = 'UltiSnips'
 
 " Debugging Initialization
 lua require('telescope').load_extension('dap')
-lua require('dap-python').setup('/usr/bin/python3')
+lua require('dap-python').setup('~/.virtualdir/debugpy/bin/python')
+
+lua << EOF
+vim.fn.sign_define('DapBreakpoint', {text='🍒', texthl='', linehl='', numhl=''})
+vim.fn.sign_define('DapStopped', {text='➡️', texthl='', linehl='', numhl=''})
+EOF
 
 " Debugging
 nnoremap <silent> <F5> :lua require'dap'.continue()<CR>
@@ -285,8 +303,8 @@ set mouse=a
 set inccommand=nosplit
 
 "better verical movement - particullary in long sentence in line
-nnoremap j gj
-nnoremap k gk
+"nnoremap j gj
+"nnoremap k gk
 
 " move between split easily
 map <c-j> <c-w>j
@@ -316,7 +334,7 @@ set smarttab
 set grepprg=rg\ --vimgrep\ --smart-case\ --follow
 
 "Python
-let g:python3_host_prog = '/usr/bin/python3'
+let g:python3_host_prog = '/usr/local/bin/python3'
 
 " quickly insert a timestamp
 nnoremap tt "=strftime("%Y-%m-%d")<cr>p
