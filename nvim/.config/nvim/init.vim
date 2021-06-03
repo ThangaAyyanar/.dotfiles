@@ -138,6 +138,12 @@ call plug#end()
 "colorscheme molokai
 colorscheme gruvbox-material
 autocmd BufEnter *.md colorscheme zephyr
+"autocmd BufEnter *.md call MdColorScheme()
+
+function MdColorScheme()
+  colorscheme gruvbox-material
+  set background=light
+endfunction
 
 " leader key and it's bindings
 
