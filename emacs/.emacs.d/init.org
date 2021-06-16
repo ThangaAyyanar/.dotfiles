@@ -1,0 +1,509 @@
+#+title: Emacs From Scratch Configuration
+#+PROPERTY: header-args:emacs-lisp :tangle ./init-new.el :mkdirp yes
+
+
+* UI Configuration
+** Basic Stuff
+#+begin_src emacs-lisp
+;; Remove startup screen
+(setq inhibit-startup-message t)
+
+;; Turn off scroll bar, menu bar, and tool tip
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(tooltip-mode -1)
+
+(set-fringe-mode 10)
+
+;; No autoback up and lock files
+(setq
+ make-backup-files nil
+ auto-save-default nil
+ create-lockfiles nil)
+#+end_src
+
+** Enable Numbers
+#+begin_src emacs-lisp
+;; Enabling Number line
+(column-number-mode)
+(global-display-line-numbers-mode t)
+(setq display-line-numbers-type 'relative)
+
+;; Disable line number for some mode
+(dolist (mode '(term-mode-hook
+		shell-mode-hook
+		eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+#+end_src
+
+** Font configuration
+#+begin_src emacs-lisp
+(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height 170)
+#+end_src
+
+** Make ESC as quit prompt
+#+begin_src emacs-lisp
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit) 
+#+end_src
+
+** Highlight Current Line
+#+begin_src emacs-lisp
+(require 'hl-line)
+(add-hook 'prog-mode-hook #'hl-line-mode)
+(add-hook 'text-mode-hook #'hl-line-mode)
+(set-face-attribute 'hl-line nil :background "gray21")
+#+end_src
+* Package Configuration
+** Initialization
+#+begin_src emacs-lisp
+(require 'package)
+
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			 ("org" . "https://orgmode.org/elpa/")
+			 ("elpa" . "https://elpa.gnu.org/packages/")))
+
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
+
+;; Initialize use package on non-linux based system
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+#+end_src
+** Command log mode
+- See what keys are pressed in current buffer
+- <M-x> type global-command-log-mode
+- <M-x> type clm/toggle-command-log-buffer
+#+begin_src emacs-lisp
+(use-package command-log-mode)
+#+end_src
+** Swiper
+- Find the particular line in current buffer easily with swiper
+#+begin_src emacs-lisp
+(use-package swiper
+  :ensure t)
+#+end_src
+** Counsel and Ivy
+- Completion engine
+- Replace the emacs buffer switching, find files, M-x with this.
+#+begin_src emacs-lisp
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+	 ("C-x b" . counsel-ibuffer)
+	 ("C-x C-f" . counsel-find-file)
+	 :map minibuffer-local-map
+	 ("C-r" . 'counsel-minibuffer-history))
+  :config
+  (setq ivy-initial-inputs-alist nil))
+
+(use-package ivy
+  :ensure t
+  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)	
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+#+end_src
+** Ivy rich
+- Gives description for M-x
+#+begin_src emacs-lisp
+(use-package ivy-rich
+  :after ivy
+  :init
+  (ivy-rich-mode 1))
+#+end_src
+** Which Key
+- Show as hint for keymap
+#+begin_src emacs-lisp
+;; which key
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 0.3))
+#+end_src
+** Hydra
+- save us from hitting the key multiple times
+#+begin_src emacs-lisp
+(use-package hydra
+  :defer t)
+#+end_src
+*** Hydra Definition
+#+begin_src emacs-lisp
+(defhydra hydra-text-scale (:timeout 4)
+  "scale text"
+  ("j" text-scale-increase "in")
+  ("k" text-scale-decrease "out")
+  ("f" nil "finished" :exit t))
+#+end_src
+** General
+- Easy way to set key bindings
+#+begin_src emacs-lisp
+(use-package general
+  :config
+  (general-create-definer ayan/leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+
+  (ayan/leader-keys
+    "t"  '(:ignore t :which-key "toggles")
+    "tt" '(counsel-load-theme :which-key "choose theme"))
+) 
+#+end_src
+*** Hydra Function KeyBindings
+#+begin_src emacs-lisp
+(ayan/leader-keys
+  "ts" '(hydra-text-scale/body :which-key "scale text"))
+#+end_src
+*** Buffers KeyBindings
+#+begin_src emacs-lisp
+(ayan/leader-keys
+    "b"  '(:ignore t :which-key "buffer")
+    "bs" '(counsel-switch-buffer :which-key "Switch Buffer")
+    "bw" '(counsel-switch-buffer-other-window :which-key "Switch Buffer Other Window")
+    "bk" '(kill-buffer :which-key "Kill Buffer")
+    "bx" '(kill-current-buffer :which-key "Kill Current Buffer")
+    )
+#+end_src
+*** Files KeyBindings
+#+begin_src emacs-lisp
+(ayan/leader-keys
+    "f"  '(:ignore t :which-key "Files")
+    "ff" 'counsel-find-file
+    )
+#+end_src
+*** Meta KeyBindings
+#+begin_src emacs-lisp
+(ayan/leader-keys
+    "m"  '(:ignore t :which-key "Meta")
+    "mx" 'counsel-M-x
+    )
+#+end_src
+*** Open File quickly
+#+begin_src emacs-lisp
+;; Open init file function and shortcut
+(defun open-init-file ()
+  "Open this very file."
+  (interactive)
+  (find-file "~/.emacs.d/init.el"))
+
+;; Open
+(ayan/leader-keys
+    "o"  '(:ignore t :which-key "Open File")
+    "oa" '(open-init-file :which-key "Init file")
+    )
+#+end_src
+***  Help
+#+begin_src emacs-lisp
+(ayan/leader-keys
+    "h"  'help-for-help
+    )
+#+end_src
+** Status bar
+#+begin_src emacs-lisp
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+#+end_src
+** Rainbow delimiter
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+** Helpful
+- More documentation
+#+begin_src emacs-lisp
+(use-package helpful
+  :commands (helpful-callable helpful-variable helpful-command helpful-key)
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
+#+end_src
+** Doom themes
+- Extra themes
+#+begin_src emacs-lisp
+(use-package doom-themes
+  :init (load-theme 'doom-oceanic-next t))
+#+end_src
+** All the icons
+- After the package installation
+- M-x all-the-icon-install-fonts<RET> (first installation only)
+#+begin_src emacs-lisp
+(use-package all-the-icons)
+#+end_src
+** EVIL Mode and EVIL collection
+- VI emulation in emacs
+#+begin_src emacs-lisp
+  (use-package evil
+    :init
+    (setq evil-want-integration t)
+    (setq evil-want-keybinding nil)
+    (setq evil-want-C-u-scroll t)
+    ;;(setq evil-want-C-i-jump nil)
+    :config
+    (add-hook 'evil-mode-hook 'dw/evil-hook)
+    (evil-mode 1)
+    ;; Normal key mapping
+    (define-key evil-insert-state-map (kbd "C-[") 'evil-normal-state)
+    (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+
+    ;; Use visual line motions even outside of visual-line-mode buffers
+    (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+    (evil-set-initial-state 'messages-buffer-mode 'normal)
+    (evil-set-initial-state 'dashboard-mode 'normal))
+
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init))
+#+end_src
+*** Evil hook
+- We don't need all buffer should start in normal mode
+#+begin_src emacs-lisp
+;; This function ensure this mode should start in insert mode
+(defun dw/evil-hook ()
+  (dolist (mode '(eshell-mode
+                  term-mode))
+  (add-to-list 'evil-emacs-state-modes mode)))
+#+end_src
+** Magit
+- Git interface for emacs
+#+begin_src emacs-lisp
+(use-package magit
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+#+end_src
+** Projectile
+- Project management
+#+begin_src emacs-lisp
+;; Projectile
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  (projectile-mode +1)
+  ;; NOTE: Set this to the folder where you keep your Git repos!
+  ;;(when (file-directory-p "~/Programs")
+  (setq projectile-project-search-path '("~/Programs"
+					 ))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package counsel-projectile
+  :after projectile
+  :config (counsel-projectile-mode))
+
+#+end_src
+** Org Mode
+- Currently not customized to my need
+- In progress
+*** Initial Configuration
+#+begin_src emacs-lisp
+(defun ayan/org-mode-setup ()
+  (org-indent-mode)
+  ;;(variable-pitch-mode 1)
+  (visual-line-mode 1)
+)
+
+(use-package org
+  :pin org
+  :commands (org-capture org-agenda)
+  :hook (org-mode . ayan/org-mode-setup)
+  :config
+  (setq org-ellipsis " ▾")
+  (setq org-agenda-files
+	'("~/Documents/My Library/OrgFiles/Tasks.org"
+	  "~/Documents/My Library/OrgFiles/Habits.org"))
+
+  ;; org habit (set the propert to habit to track it)
+  (require 'org-habit)
+  (add-to-list 'org-modules 'org-habit)
+  (setq org-habit-graph-column 60)
+
+  (setq org-agenda-start-with-log-mode t)
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)
+
+  (setq org-todo-keywords
+	'((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+	  (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+
+  ;; Archiving tags
+  (setq org-refile-targets
+	'(("Tasks.org" :maxlevel . 1)
+	  ;;("OTHERFILE.org" :maxlevel . 2)
+	  ))
+
+  ;; save the all org file after the refile is done
+  (advice-add 'org-refile :after 'org-save-all-org-buffers)
+  
+    ;; Configure custom agenda views
+  (setq org-agenda-custom-commands
+   '(("d" "Dashboard"
+     ((agenda "" ((org-deadline-warning-days 7)))
+      (todo "NEXT"
+        ((org-agenda-overriding-header "Next Tasks")))
+      (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+
+    ("n" "Next Tasks"
+     ((todo "NEXT"
+        ((org-agenda-overriding-header "Next Tasks")))))
+
+    ("W" "Work Tasks" tags-todo "+work-email")
+
+    ;; Low-effort next actions
+    ;; Org set effort related stuff (org properties for the header)
+    ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+     ((org-agenda-overriding-header "Low Effort Tasks")
+      (org-agenda-max-todos 20)
+      (org-agenda-files org-agenda-files)))
+
+    ("w" "Workflow Status"
+     ((todo "WAIT"
+            ((org-agenda-overriding-header "Waiting on External")
+             (org-agenda-files org-agenda-files)))
+      (todo "REVIEW"
+            ((org-agenda-overriding-header "In Review")
+             (org-agenda-files org-agenda-files)))
+      (todo "PLAN"
+            ((org-agenda-overriding-header "In Planning")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "BACKLOG"
+            ((org-agenda-overriding-header "Project Backlog")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "READY"
+            ((org-agenda-overriding-header "Ready for Work")
+             (org-agenda-files org-agenda-files)))
+      (todo "ACTIVE"
+            ((org-agenda-overriding-header "Active Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "COMPLETED"
+            ((org-agenda-overriding-header "Completed Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "CANC"
+            ((org-agenda-overriding-header "Cancelled Projects")
+             (org-agenda-files org-agenda-files)))))
+
+    ;; Org default tags
+    ;; <C-c C-q> tag addition view
+    (setq org-tag-alist
+    '((:startgroup)
+       ; Put mutually exclusive tags here
+       (:endgroup)
+       ("@errand" . ?E)
+       ("@home" . ?H)
+       ("@work" . ?W)
+       ("agenda" . ?a)
+       ("planning" . ?p)
+       ("publish" . ?P)
+       ("batch" . ?b)
+       ("note" . ?n)
+       ("idea" . ?i)))
+  
+    ;; Templates (org-capture)
+    (setq org-capture-templates
+    `(("t" "Tasks / Projects")
+      ("tt" "Task" entry (file+olp "~/Documents/My Library/OrgFiles/Tasks.org" "Inbox")
+           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+
+      ("j" "Journal Entries")
+      ("jj" "Journal" entry
+           (file+olp+datetree "~/Documents/My Library/OrgFiles/Journal.org")
+           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+           :clock-in :clock-resume
+           :empty-lines 1)
+      ("jm" "Meeting" entry
+           (file+olp+datetree "~/Documents/My Library/OrgFiles/Journal.org")
+           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+           :clock-in :clock-resume
+           :empty-lines 1)
+
+      ("w" "Workflows")
+      ("we" "Checking Email" entry (file+olp+datetree "~/Documents/My Library/OrgFiles/Journal.org")
+           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+
+      ("m" "Metrics Capture")
+      ("mw" "Weight" table-line (file+headline "~/Documents/My Library/OrgFiles/Metrics.org" "Weight")
+       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
+    
+  )))
+#+end_src
+*** Org Bullets
+- Convert the org headline * to circle
+#+begin_src emacs-lisp
+(use-package org-bullets
+  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+#+end_src
+*** Visual fill
+#+begin_src emacs-lisp
+;; Distraction free writing
+(defun ayan/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . ayan/org-mode-visual-fill))
+#+end_src
+*** Org Babel
+**** Babel Support Languages
+#+begin_src emacs-lisp
+(with-eval-after-load 'org
+  (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((emacs-lisp . t)
+	(python . t)
+	(dot . t) ;; Doesn't work currently
+	)))
+;; don't ask me conformation y/n when execute code
+(setq org-confirm-babel-evaluate nil)
+
+#+end_src
+**** Structure Template
+- usage <el / <py tab
+#+begin_src emacs-lisp
+(with-eval-after-load 'org
+  ;; This is needed as of Org 9.2
+  (require 'org-tempo)
+
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python")))
+#+end_src
+** Languages
+- Support for emacs unsupported languages
+*** Swift
+#+begin_src emacs-lisp
+(use-package swift-mode)
+#+end_src
