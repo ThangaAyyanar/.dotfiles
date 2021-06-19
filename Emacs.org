@@ -1,5 +1,5 @@
 #+title: Emacs From Scratch Configuration
-#+PROPERTY: header-args:emacs-lisp :tangle ./init-new.el :mkdirp yes
+#+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
 
 
 * UI Configuration
@@ -55,6 +55,14 @@
 (add-hook 'text-mode-hook #'hl-line-mode)
 (set-face-attribute 'hl-line nil :background "gray21")
 #+end_src
+
+** Mac Path setup
+- Brew installed packages path available to emacs
+#+begin_src emacs-lisp
+(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+(setq exec-path (append exec-path '("/usr/local/bin")))
+#+end_src
+
 * Package Configuration
 ** Initialization
 #+begin_src emacs-lisp
@@ -152,70 +160,6 @@
   ("k" text-scale-decrease "out")
   ("f" nil "finished" :exit t))
 #+end_src
-** General
-- Easy way to set key bindings
-#+begin_src emacs-lisp
-(use-package general
-  :config
-  (general-create-definer ayan/leader-keys
-    :keymaps '(normal insert visual emacs)
-    :prefix "SPC"
-    :global-prefix "C-SPC")
-
-  (ayan/leader-keys
-    "t"  '(:ignore t :which-key "toggles")
-    "tt" '(counsel-load-theme :which-key "choose theme"))
-) 
-#+end_src
-*** Hydra Function KeyBindings
-#+begin_src emacs-lisp
-(ayan/leader-keys
-  "ts" '(hydra-text-scale/body :which-key "scale text"))
-#+end_src
-*** Buffers KeyBindings
-#+begin_src emacs-lisp
-(ayan/leader-keys
-    "b"  '(:ignore t :which-key "buffer")
-    "bs" '(counsel-switch-buffer :which-key "Switch Buffer")
-    "bw" '(counsel-switch-buffer-other-window :which-key "Switch Buffer Other Window")
-    "bk" '(kill-buffer :which-key "Kill Buffer")
-    "bx" '(kill-current-buffer :which-key "Kill Current Buffer")
-    )
-#+end_src
-*** Files KeyBindings
-#+begin_src emacs-lisp
-(ayan/leader-keys
-    "f"  '(:ignore t :which-key "Files")
-    "ff" 'counsel-find-file
-    )
-#+end_src
-*** Meta KeyBindings
-#+begin_src emacs-lisp
-(ayan/leader-keys
-    "m"  '(:ignore t :which-key "Meta")
-    "mx" 'counsel-M-x
-    )
-#+end_src
-*** Open File quickly
-#+begin_src emacs-lisp
-;; Open init file function and shortcut
-(defun open-init-file ()
-  "Open this very file."
-  (interactive)
-  (find-file "~/.emacs.d/init.el"))
-
-;; Open
-(ayan/leader-keys
-    "o"  '(:ignore t :which-key "Open File")
-    "oa" '(open-init-file :which-key "Init file")
-    )
-#+end_src
-***  Help
-#+begin_src emacs-lisp
-(ayan/leader-keys
-    "h"  'help-for-help
-    )
-#+end_src
 ** Status bar
 #+begin_src emacs-lisp
 (use-package doom-modeline
@@ -255,6 +199,16 @@
 #+end_src
 ** EVIL Mode and EVIL collection
 - VI emulation in emacs
+*** Evil hook
+- We don't need all buffer should start in normal mode
+#+begin_src emacs-lisp
+;; This function ensure this mode should start in insert mode
+(defun ayan/evil-hook ()
+  (dolist (mode '(eshell-mode
+                  term-mode))
+  (add-to-list 'evil-emacs-state-modes mode)))
+#+end_src
+*** Configuration
 #+begin_src emacs-lisp
   (use-package evil
     :init
@@ -263,7 +217,7 @@
     (setq evil-want-C-u-scroll t)
     ;;(setq evil-want-C-i-jump nil)
     :config
-    (add-hook 'evil-mode-hook 'dw/evil-hook)
+    (add-hook 'evil-mode-hook 'ayan/evil-hook)
     (evil-mode 1)
     ;; Normal key mapping
     (define-key evil-insert-state-map (kbd "C-[") 'evil-normal-state)
@@ -280,15 +234,6 @@
     :after evil
     :config
     (evil-collection-init))
-#+end_src
-*** Evil hook
-- We don't need all buffer should start in normal mode
-#+begin_src emacs-lisp
-;; This function ensure this mode should start in insert mode
-(defun dw/evil-hook ()
-  (dolist (mode '(eshell-mode
-                  term-mode))
-  (add-to-list 'evil-emacs-state-modes mode)))
 #+end_src
 ** Magit
 - Git interface for emacs
@@ -501,9 +446,182 @@
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python")))
 #+end_src
-** Languages
+*** AutoTangle
+- Automatically create init.el file whenever we save this file.
+#+begin_src emacs-lisp
+;; Automatically tangle our Emacs.org config file when we save it
+(defun efs/org-babel-tangle-config ()
+  (when (string-equal (file-name-directory (buffer-file-name))
+                      (expand-file-name user-emacs-directory))
+    ;; Dynamic scoping to the rescue
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
+
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+#+end_src
+** Language Support
 - Support for emacs unsupported languages
 *** Swift
 #+begin_src emacs-lisp
 (use-package swift-mode)
+#+end_src
+- Xcode control from emacs
+- https://www.danielde.dev/blog/emacs-for-swift-development
+**** Xcode Build Project
+#+begin_src emacs-lisp
+(defun xcode-build()
+  (interactive)
+  (shell-command-to-string
+     "osascript -e 'tell application \"Xcode\"' -e 'set targetProject to active workspace document' -e 'build targetProject' -e 'end tell'"))
+#+end_src
+**** Xcode Run Project
+#+begin_src emacs-lisp
+(defun xcode-run()
+  (interactive)
+  (shell-command-to-string
+    "osascript -e 'tell application \"Xcode\"' -e 'set targetProject to active workspace document' -e 'stop targetProject' -e 'run targetProject' -e 'end tell'"))
+#+end_src
+**** Xcode Test Project
+#+begin_src emacs-lisp
+(defun xcode-test()
+  (interactive)
+  (shell-command-to-string
+    "osascript -e 'tell application \"Xcode\"' -e 'set targetProject to active workspace document' -e 'stop targetProject' -e 'test targetProject' -e 'end tell'"))
+#+end_src
+** Terminals
+*** Term
+#+begin_src emacs-lisp
+(use-package term
+  :config
+  (setq explicit-shell-file-name "zsh")
+  ;;(setq explicit-zsh-args '())
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *"))
+#+end_src
+*** eterm
+#+begin_src emacs-lisp
+(use-package eterm-256color
+  :hook (term-mode . eterm-256color-mode))
+#+end_src
+*** Vterm
+#+begin_src emacs-lisp
+(use-package vterm
+  :commands vterm
+  :config
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
+  ;;(setq vterm-shell "zsh")
+  (setq vterm-max-scrollback 10000))
+#+end_src
+*** Eshell
+#+begin_src emacs-lisp
+   (defun efs/configure-eshell ()
+     ;; Save command history when commands are entered
+     (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+
+     ;; Truncate buffer for performance
+     (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
+
+     ;; Bind some useful keys for evil-mode
+     (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-r") 'counsel-esh-history)
+     (evil-define-key '(normal insert visual) eshell-mode-map (kbd "<home>") 'eshell-bol)
+     (evil-normalize-keymaps)
+
+     (setq eshell-history-size         10000
+           eshell-buffer-maximum-lines 10000
+           eshell-hist-ignoredups t
+           eshell-scroll-to-bottom-on-input t))
+
+   (use-package eshell
+     :hook (eshell-first-time-mode . efs/configure-eshell))
+
+   (use-package eshell-git-prompt
+     :config
+     (eshell-git-prompt-use-theme 'powerline))
+
+  (with-eval-after-load 'esh-opt
+   (setq eshell-destroy-buffer-when-process-dies t)
+   (setq eshell-visual-commands '("htop" "zsh" "vim")))
+#+end_src
+** General
+- Easy way to set key bindings
+#+begin_src emacs-lisp
+(use-package general
+  :config
+  (general-create-definer ayan/leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+
+  (ayan/leader-keys
+    "t"  '(:ignore t :which-key "toggles")
+    "tt" '(counsel-load-theme :which-key "choose theme"))
+) 
+#+end_src
+*** Hydra Function KeyBindings
+#+begin_src emacs-lisp
+(ayan/leader-keys
+  "ts" '(hydra-text-scale/body :which-key "scale text"))
+#+end_src
+*** Buffers KeyBindings
+#+begin_src emacs-lisp
+(ayan/leader-keys
+    "b"  '(:ignore t :which-key "buffer")
+    "br" '(revert-buffer :which-key "Revert Buffer")
+    "bs" '(counsel-switch-buffer :which-key "Switch Buffer")
+    "bw" '(counsel-switch-buffer-other-window :which-key "Switch Buffer Other Window")
+    "bk" '(kill-buffer :which-key "Kill Buffer")
+    "bx" '(kill-current-buffer :which-key "Kill Current Buffer")
+    )
+#+end_src
+*** Files KeyBindings
+#+begin_src emacs-lisp
+(ayan/leader-keys
+    "f"  '(:ignore t :which-key "Files")
+    "ff" 'counsel-find-file
+    )
+#+end_src
+*** Magit KeyBindings
+#+begin_src emacs-lisp
+(ayan/leader-keys
+    "m"  '(:ignore t :which-key "Git")
+    "ms" '(magit-status :which-key "Status")
+    )
+#+end_src
+*** M-x Keybinding
+#+begin_src emacs-lisp
+  (ayan/leader-keys
+    "x" '(counsel-M-x :which-key "M-x")
+  )
+#+end_src
+*** Load File quickly
+#+begin_src emacs-lisp
+;; Open init file function and shortcut
+(defun open-init-file ()
+  "Open this very file."
+  (interactive)
+  (find-file "~/.emacs.d/Emacs.org"))
+
+;; Open
+(ayan/leader-keys
+    "l"  '(:ignore t :which-key "Load File")
+    "li" '(open-init-file :which-key "Init file")
+    )
+#+end_src
+*** Org Shortcuts
+#+begin_src emacs-lisp
+  (ayan/leader-keys
+      "o"  '(:ignore t :which-key "Org")
+      )
+#+end_src
+*** Utilities Shortcuts
+#+begin_src emacs-lisp
+  (ayan/leader-keys
+      "u"  '(:ignore t :which-key "Utility")
+      "ui" '(counsel-imenu :which-key "iMenu")
+      )
+#+end_src
+*** Help
+#+begin_src emacs-lisp
+(ayan/leader-keys
+    "h"  'help-for-help
+    )
 #+end_src
