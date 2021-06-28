@@ -22,6 +22,12 @@
  create-lockfiles nil)
 #+end_src
 
+** Shorten yes and no to y/n
+
+#+begin_src emacs-lisp
+(fset 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
 ** Enable Numbers
 #+begin_src emacs-lisp
   ;; Enabling Number line
@@ -32,7 +38,9 @@
   ;; Disable line number for some mode
   (dolist (mode '(term-mode-hook
                   shell-mode-hook
+                  pdf-view-mode-hook
                   nov-mode-hook
+                  treemacs-mode-hook
                   eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
@@ -155,16 +163,20 @@
 ** Pdf Reader - pdf-tools
 
 #+begin_src emacs-lisp
-  ;; (use-package pdf-tools
-  ;;   :ensure t
-  ;;   :pin manual ;; don't reinstall when package updates
-  ;;   :mode  ("\\.pdf\\'" . pdf-view-mode)
-  ;;   :config
-  ;;   (setq-default pdf-view-display-size 'fit-page)
-  ;;   (setq pdf-annot-activate-created-annotations t)
-  ;;   (pdf-tools-install :no-query)
-  ;;   (require 'pdf-occur))
-
+(use-package pdf-tools
+  :ensure t
+  :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
+  :config
+  ;; initialise
+  (pdf-tools-install)
+  ;; open pdfs scaled to fit page
+  (setq-default pdf-view-display-size 'fit-page)
+  ;; automatically annotate highlights
+  (setq pdf-annot-activate-created-annotations t)
+  ;; more fine-grained zooming
+  (setq pdf-view-resize-factor 1.1)
+  :hook
+  (pdf-view-mode-hook . pdf-tools-enable-minor-modes))
 #+end_src
 
 ** HTTP Client
@@ -203,43 +215,43 @@
 - Find the particular line in current buffer easily with swiper
 #+begin_src emacs-lisp
 (use-package swiper
-  :bind ("C-s" . swiper))
+  :bind ("M-s" . swiper))
 #+end_src
 ** Counsel and Ivy
 - Completion engine
 - Replace the emacs buffer switching, find files, M-x with this.
 #+begin_src emacs-lisp
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)
-	 ("C-x b" . counsel-ibuffer)
-	 ("C-x C-f" . counsel-find-file)
-	 :map minibuffer-local-map
-	 ("C-r" . 'counsel-minibuffer-history))
-  :config
-  (setq ivy-initial-inputs-alist nil))
+  (use-package counsel
+    :bind (("M-x" . counsel-M-x)
+           ("C-x C-f" . counsel-find-file)
+           :map minibuffer-local-map
+           ("C-r" . 'counsel-minibuffer-history))
+    :config
+    (setq ivy-initial-inputs-alist nil))
 
-(use-package ivy
-  :ensure t
-  :diminish
-  :bind (:map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)	
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1))
+  (use-package ivy
+    :ensure t
+    :diminish
+    :bind (:map ivy-minibuffer-map
+           ("TAB" . ivy-alt-done)	
+           ("C-l" . ivy-alt-done)
+           ("C-j" . ivy-next-line)
+           ("C-k" . ivy-previous-line)
+           :map ivy-switch-buffer-map
+           ("C-k" . ivy-previous-line)
+           ("C-l" . ivy-done)
+           ("C-d" . ivy-switch-buffer-kill)
+           :map ivy-reverse-i-search-map
+           ("C-k" . ivy-previous-line)
+           ("C-d" . ivy-reverse-i-search-kill))
+    :config
+    (ivy-mode 1))
 #+end_src
 ** Counsel Dash
 #+begin_src emacs-lisp
   (use-package counsel-dash
     :defer t
+    :after counsel
     :init
     (add-hook 'swift-mode-hook (lambda () (setq-local counsel-dash-docsets '("Swift"))))
     (add-hook 'python-mode-hook (lambda () (setq-local counsel-dash-docsets '("Python 3"))))
@@ -249,6 +261,20 @@
     (setq counsel-dash-common-docsets '("Bash"))
   )
 #+end_src
+
+** Perspective
+
+- Workspace similar to desktop env i3, dwm.
+- Useful to work in multiple projects or multiple features.
+  #+begin_src emacs-lisp
+    ;; (use-package perspective
+    ;;   :after counsel
+    ;;   :commands (persp-counsel-switch-buffer)
+    ;;   :config
+    ;;   (persp-mode))
+    ;; use C-x x to learn more about perspective
+  #+end_src
+
 ** Ivy rich
 - Gives description for M-x
 #+begin_src emacs-lisp
@@ -376,27 +402,28 @@
 ** Projectile
 - Project management
 #+begin_src emacs-lisp
-  ;; Projectile
-  (use-package projectile
-    :diminish projectile-mode
-    :config (projectile-mode +1)
-    :custom ((projectile-completion-system 'ivy))
-    :bind-keymap
-    ("C-c p" . projectile-command-map)
-    :init
-    ;; NOTE: Set this to the folder where you keep your Git repos!
-    ;;(when (file-directory-p "~/Programs")
-    (setq projectile-project-search-path '("~/Programs"
-                                           ))
-    ;;(add-to-list 'projectile-ignored-projects (concat (getenv "HOME") "/")) ; Do not consider the home dir as a project
-    (setq projectile-switch-project-action #'counsel-projectile-find-file)
-  )
+    ;; Projectile
+    (use-package projectile
+      :diminish projectile-mode
+      :config (projectile-mode +1)
+      :custom ((projectile-completion-system 'ivy))
+      :bind-keymap
+      ("C-c p" . projectile-command-map)
+      :init
+      ;; NOTE: Set this to the folder where you keep your Git repos!
+      ;;(when (file-directory-p "~/Programs")
+      (setq projectile-project-search-path '("~/Programs"
+                                             ))
+    )
 
-  (use-package counsel-projectile
-    :after projectile
-    :config (counsel-projectile-mode))
+    (use-package counsel-projectile
+      :after projectile
+      :config (counsel-projectile-mode)
+      :init (setq projectile-switch-project-action #'counsel-projectile-find-file))
+
 
 #+end_src
+
 ** Org Mode
 - Currently not customized to my need
 - In progress
@@ -415,7 +442,8 @@
     :config
     (setq org-ellipsis " ▾")
     (setq org-agenda-files
-          '("~/Documents/My Library/OrgFiles/Tasks.org"
+          '("~/cloud/Dropbox/Tasks.org"
+            "~/Documents/My Library/OrgFiles/Habits.org"
             "/Users/thanga-6745/Zoho WorkDrive (Enterprise)/My Folders/Sync/Tasks.org"
             ;; "~/Documents/My Library/OrgFiles/Tasks.org"
             ))
@@ -558,15 +586,18 @@
 *** Org Babel
 **** Babel Support Languages
 #+begin_src emacs-lisp
-(with-eval-after-load 'org
-  (org-babel-do-load-languages
-      'org-babel-load-languages
-      '((emacs-lisp . t)
-	(python . t)
-	(dot . t) ;; Doesn't work currently
-	)))
-;; don't ask me conformation y/n when execute code
-(setq org-confirm-babel-evaluate nil)
+  (with-eval-after-load 'org
+    (org-babel-do-load-languages
+        'org-babel-load-languages
+        '((emacs-lisp . t)
+          (python . t)
+          (plantuml . t) 
+          (dot . t) 
+          ))
+    (setq org-plantuml-jar-path "/Users/thanga-6745/Scripts/Binary/plantuml.jar")
+  )
+  ;; don't ask me conformation y/n when execute code
+  (setq org-confirm-babel-evaluate nil)
 
 #+end_src
 **** Structure Template
@@ -604,6 +635,8 @@
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 #+end_src
 
+*** Org journal
+
 *** Org Alert
 
 #+begin_src emacs-lisp
@@ -625,12 +658,13 @@
 )
 #+end_src
 ** Language Support
-- Support for emacs unsupported languages
+- Support for emacs unsupported languages and configuration
 *** Swift
 #+begin_src emacs-lisp
-(use-package swift-mode
- :mode "\\.swift\\'"
-)
+  (use-package swift-mode
+   :mode "\\.swift\\'"
+  ;; :hook (swift-mode . lsp-deferred)
+  )
 #+end_src
 - Xcode control from emacs
 - https://www.danielde.dev/blog/emacs-for-swift-development
@@ -655,6 +689,15 @@
   (shell-command-to-string
     "osascript -e 'tell application \"Xcode\"' -e 'set targetProject to active workspace document' -e 'stop targetProject' -e 'test targetProject' -e 'end tell'"))
 #+end_src
+*** Python
+
+#+begin_src emacs-lisp
+  ;; (use-package python-mode
+  ;;    :ensure nil ;; Not to download from melpa bcoz we already have it
+  ;;    :custom
+  ;;    (python-shell-interpreter "python3")
+  ;; )
+#+end_src
 
 *** Markdown
 
@@ -662,6 +705,89 @@
 (use-package markdown-mode
    :mode "\\.md\\'"
 )
+#+end_src
+
+** LSP
+
+*** Header breadcrumb
+
+#+begin_src emacs-lisp
+(defun ayan/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode))
+#+end_src
+
+*** Basic LSP stuff
+
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :init
+  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+  :config
+  (lsp-enable-which-key-integration t)
+  :hook (lsp-mode . ayan/lsp-mode-setup))
+#+end_src
+
+*** LSP UI
+
+#+begin_src emacs-lisp
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode))
+#+end_src
+
+**** Other UI relate stuff
+#+begin_src emacs-lisp
+(setq lsp-ui-doc-position 'bottom)
+
+#+end_src
+
+**** Side line
+#+begin_src emacs-lisp
+(setq lsp-ui-sideline-enable nil)
+(setq lsp-ui-sideline-show-hover nil)
+#+end_src
+
+
+*** Swift
+
+#+begin_src emacs-lisp
+(use-package lsp-sourcekit
+  :after lsp-mode
+  :config
+  (setq lsp-sourcekit-executable (string-trim (shell-command-to-string "xcrun --find sourcekit-lsp"))))
+#+end_src
+
+** Company mode
+
+#+begin_src emacs-lisp
+(use-package company
+  :after lsp-mode
+  :hook (prog-mode . company-mode)
+  :bind (:map company-active-map
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0))
+
+;; (use-package company-box
+;;  :hook (company-mode . company-box-mode))
+#+end_src
+
+** Treemacs
+
+#+begin_src emacs-lisp
+(use-package lsp-treemacs
+  :after lsp)
+#+end_src
+
+** Commenting Line
+
+#+begin_src emacs-lisp
+(use-package evil-nerd-commenter
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 #+end_src
 
 ** Terminals
@@ -805,6 +931,7 @@
     "b"  '(:ignore t :which-key "buffer")
     "br" '(revert-buffer :which-key "Revert Buffer")
     "bs" '(counsel-switch-buffer :which-key "Switch Buffer")
+;;    "bp" '(persp-counsel-switch-buffer :which-key "Perspective Switch Buffer")
     "bw" '(counsel-switch-buffer-other-window :which-key "Switch Buffer Other Window")
     "bk" '(kill-buffer :which-key "Kill Buffer")
     "bx" '(kill-current-buffer :which-key "Kill Current Buffer")
@@ -824,12 +951,6 @@
     "gs" '(magit-status :which-key "Status")
     )
 #+end_src
-*** M-x Keybinding
-#+begin_src emacs-lisp
-  (ayan/leader-keys
-    "x" '(counsel-M-x :which-key "M-x")
-  )
-#+end_src
 *** Load File quickly
 #+begin_src emacs-lisp
 ;; Open init file function and shortcut
@@ -846,9 +967,12 @@
 #+end_src
 *** Org Shortcuts
 #+begin_src emacs-lisp
-  (ayan/leader-keys
-      "o"  '(:ignore t :which-key "Org")
-      )
+ (ayan/leader-keys
+     "o"  '(:ignore t :which-key "Org")
+     "oa"  '(org-agenda :which-key "Org Agenda")
+     "on"  '(org-narrow-to-subtree :which-key "Narrow")
+     "ow"  '(widen :which-key "Widen")
+     )
 #+end_src
 *** Utilities Shortcuts
 #+begin_src emacs-lisp
@@ -860,11 +984,12 @@
 *** Projectile
 #+begin_src emacs-lisp
 (ayan/leader-keys
-    "p" '(:igoner t :which-key "Projectile")
+    "p" '(:ignore t :which-key "Projectile")
     "pf" '(counsel-projectile-find-file :which-key "Find file")
     "ps" '(counsel-projectile-switch-project :which-key "Switch project")
     "pb" '(counsel-projectile-switch-to-buffer :which-key "Project buffers")
     "pg" '(counsel-projectile-rg :which-key "Grep file")
+    "pq" '(projectile-switch-open-project :which-key "Switch project")
 )
 #+end_src
 *** Help
@@ -872,4 +997,24 @@
 (ayan/leader-keys
     "h"  'help-for-help
     )
+#+end_src
+
+* Tutorials
+
+** Org babel
+- https://orgmode.org/worg/org-contrib/babel/languages/index.html
+
+*** PlantUML
+
+#+begin_src plantuml :file test-sample.png :exports results
+@startuml
+Alice -> Bob: test
+@enduml
+#+end_src
+
+*** Graphviz
+#+begin_src dot :file test-dot.png :exports results
+  digraph{
+   a -> b;
+  }
 #+end_src
