@@ -372,6 +372,9 @@
     (setq evil-want-keybinding nil)
     (setq evil-want-C-u-scroll t)
     ;;(setq evil-want-C-i-jump nil)
+    :custom
+    (evil-vsplit-window-right t)
+    (evil-split-window-below t)
     :config
     (add-hook 'evil-mode-hook 'ayan/evil-hook)
     (evil-mode 1)
@@ -391,6 +394,15 @@
     :config
     (evil-collection-init))
 #+end_src
+*** Evil unbind Enter key
+- Unbind enter key in evil mode as i used to follow links in org mode
+  #+begin_src emacs-lisp
+(with-eval-after-load 'evil-maps
+  (define-key evil-motion-state-map (kbd "RET") nil)
+  ;; (define-key evil-motion-state-map (kbd "SPC") nil)
+  ;; (define-key evil-motion-state-map (kbd "TAB") nil)
+)
+  #+end_src
 ** Magit
 - Git interface for emacs
 #+begin_src emacs-lisp
@@ -441,6 +453,7 @@
     :hook (org-mode . ayan/org-mode-setup)
     :config
     (setq org-ellipsis " ▾")
+    (setq org-return-follows-link t)
     (setq org-agenda-files
           '("~/cloud/Dropbox/Tasks.org"
             "~/Documents/My Library/OrgFiles/Habits.org"
@@ -635,7 +648,23 @@
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 #+end_src
 
-*** Org journal
+*** Org Roam
+
+#+begin_src emacs-lisp
+(use-package org-roam
+      :hook
+      ;; (after-init . org-roam-mode)
+      (org-mode . org-roam-mode)
+      :custom
+      (org-roam-directory (file-truename "/Users/thanga-6745/Zoho WorkDrive (Enterprise)/My Folders/Documentation"))
+      :bind (:map org-roam-mode-map
+              (("C-c n l" . org-roam)
+               ("C-c n f" . org-roam-find-file)
+               ("C-c n g" . org-roam-graph))
+              :map org-mode-map
+              (("C-c n i" . org-roam-insert))
+              (("C-c n I" . org-roam-insert-immediate))))
+#+end_src
 
 *** Org Alert
 
@@ -692,11 +721,7 @@
 *** Python
 
 #+begin_src emacs-lisp
-  ;; (use-package python-mode
-  ;;    :ensure nil ;; Not to download from melpa bcoz we already have it
-  ;;    :custom
-  ;;    (python-shell-interpreter "python3")
-  ;; )
+ (setq python-shell-interpreter "/usr/local/bin/python3")
 #+end_src
 
 *** Markdown
@@ -753,9 +778,18 @@
 
 #+begin_src emacs-lisp
 (use-package lsp-sourcekit
-  :after lsp-mode
+  :hook (switf-mode . lsp-deferred)
   :config
   (setq lsp-sourcekit-executable (string-trim (shell-command-to-string "xcrun --find sourcekit-lsp"))))
+#+end_src
+
+*** Python
+
+#+begin_src emacs-lisp
+(use-package lsp-pyright
+   :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))  ; or lsp-deferred
 #+end_src
 
 ** Company mode
@@ -787,7 +821,18 @@
 
 #+begin_src emacs-lisp
 (use-package evil-nerd-commenter
-  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+  :bind ("s-/" . evilnc-comment-or-uncomment-lines))
+#+end_src
+
+** YAS snippet
+
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :hook (prog-mode . yas-minor-mode)
+    :config
+    (yas-reload-all))
+
+  (use-package yasnippet-snippets)
 #+end_src
 
 ** Terminals
@@ -997,6 +1042,26 @@
 (ayan/leader-keys
     "h"  'help-for-help
     )
+#+end_src
+
+** Global bindings
+#+begin_src emacs-lisp
+(general-define-key
+ :keymaps '(override)                   ; check out `general-override-mode-map'.
+ ;; Adding `nil' to the states makes these keybindings work on buffers where
+ ;; they would usually not work, e.g. the *Messages* buffer or the
+ ;; `undo-tree-visualize' buffer.
+ :states '(normal visual insert nil)
+ "M-F" #'toggle-frame-fullscreen
+ ;; "M-H" 'buf-move-left
+ ;; "M-J" 'buf-move-down
+ ;; "M-K" 'buf-move-up
+ ;; "M-L" 'buf-move-right
+ "M-h" #'evil-window-left
+ "M-j" #'evil-window-down
+ "M-k" #'evil-window-up
+ "M-l" #'evil-window-right
+ )
 #+end_src
 
 * Tutorials
