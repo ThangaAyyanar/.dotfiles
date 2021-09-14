@@ -1016,7 +1016,7 @@
 (defun open-init-file ()
   "Open this very file."
   (interactive)
-  (find-file "~/.emacs.d/Emacs.org"))
+  (find-file "~/.config/emacs/default/Emacs.org"))
 
 ;; Open
 (ayan/leader-keys
