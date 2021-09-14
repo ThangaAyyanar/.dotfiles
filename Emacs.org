@@ -40,6 +40,7 @@
                   shell-mode-hook
                   pdf-view-mode-hook
                   nov-mode-hook
+                  org-mode-hook
                   treemacs-mode-hook
                   eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
@@ -48,7 +49,7 @@
 
 ** Font configuration
 #+begin_src emacs-lisp
-(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height 170)
+(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height 165)
 #+end_src
 
 ** Make ESC as quit prompt
@@ -111,6 +112,18 @@
   (auto-package-update-maybe)
   (auto-package-update-at-time "11:00"))
 #+end_src
+* Custom functions
+
+#+begin_src emacs-lisp
+(defun toggle-maximize-buffer () "Maximize buffer"
+  (interactive)
+  (if (= 1 (length (window-list)))
+      (jump-to-register '_) 
+    (progn
+      (window-configuration-to-register '_)
+      (delete-other-windows))))
+#+end_src
+
 * Applications
 ** Erc
 - irc client
@@ -201,6 +214,7 @@
     :commands spray-mode
   )
 #+end_src
+
 * Packages
 ** Command log mode
 - See what keys are pressed in current buffer
@@ -267,12 +281,11 @@
 - Workspace similar to desktop env i3, dwm.
 - Useful to work in multiple projects or multiple features.
   #+begin_src emacs-lisp
-    ;; (use-package perspective
-    ;;   :after counsel
-    ;;   :commands (persp-counsel-switch-buffer)
-    ;;   :config
-    ;;   (persp-mode))
-    ;; use C-x x to learn more about perspective
+  (use-package perspective
+    :after counsel
+    :config
+    (persp-mode))
+  ;; use C-x x to learn more about perspective
   #+end_src
 
 ** Ivy rich
@@ -457,7 +470,7 @@
     (setq org-agenda-files
           '("~/cloud/Dropbox/Tasks.org"
             "~/Documents/My Library/OrgFiles/Habits.org"
-            "/Users/thanga-6745/Zoho WorkDrive (Enterprise)/My Folders/Sync/Tasks.org"
+            "~/Zoho WorkDrive (Enterprise)/My Folders/Sync/Tasks.org"
             ;; "~/Documents/My Library/OrgFiles/Tasks.org"
             ))
 
@@ -472,11 +485,12 @@
 
     (setq org-todo-keywords
           '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-            (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+            (sequence "BACKLOG(b)" "PLAN(p)" "ISSUE(i)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "DELEGATED(d)" "COMPLETED(c)" "CANC(k@)")))
 
     ;; Archiving tags
     (setq org-refile-targets
-          '(("Tasks.org" :maxlevel . 1)
+          '( ;; ("Tasks.org" :maxlevel . 1)
+            ("~/Zoho WorkDrive (Enterprise)/My Folders/Sync/Archive.org" :maxlevel . 4)
             ;;("OTHERFILE.org" :maxlevel . 2)
             ))
 
@@ -607,7 +621,7 @@
           (plantuml . t) 
           (dot . t) 
           ))
-    (setq org-plantuml-jar-path "/Users/thanga-6745/Scripts/Binary/plantuml.jar")
+    (setq org-plantuml-jar-path "~/Scripts/Binary/plantuml.jar")
   )
   ;; don't ask me conformation y/n when execute code
   (setq org-confirm-babel-evaluate nil)
@@ -652,18 +666,18 @@
 
 #+begin_src emacs-lisp
 (use-package org-roam
-      :hook
-      ;; (after-init . org-roam-mode)
-      (org-mode . org-roam-mode)
+      :init
+      (setq org-roam-v2-ack t)
       :custom
-      (org-roam-directory (file-truename "/Users/thanga-6745/Zoho WorkDrive (Enterprise)/My Folders/Documentation"))
-      :bind (:map org-roam-mode-map
-              (("C-c n l" . org-roam)
-               ("C-c n f" . org-roam-find-file)
-               ("C-c n g" . org-roam-graph))
-              :map org-mode-map
-              (("C-c n i" . org-roam-insert))
-              (("C-c n I" . org-roam-insert-immediate))))
+      (org-roam-directory (file-truename "~/Zoho WorkDrive (Enterprise)/My Folders/Documentation"))
+       (org-roam-completion-everywhere t)
+      :bind (("C-c n l" . org-roam-buffer-toggle)
+             ("C-c n f" . org-roam-node-find)
+             ("C-c n i" . org-roam-node-insert)
+             :map org-mode-map
+             ("C-M-i"    . completion-at-point))
+      :config
+         (org-roam-setup))
 #+end_src
 
 *** Org Alert
@@ -1017,6 +1031,7 @@
      "oa"  '(org-agenda :which-key "Org Agenda")
      "on"  '(org-narrow-to-subtree :which-key "Narrow")
      "ow"  '(widen :which-key "Widen")
+     "or"  '(org-refile :which-key "Org refile")
      )
 #+end_src
 *** Utilities Shortcuts
@@ -1024,6 +1039,7 @@
   (ayan/leader-keys
       "u"  '(:ignore t :which-key "Utility")
       "ui" '(counsel-imenu :which-key "iMenu")
+      "uM" '(toggle-maximize-buffer :which-key "Toggle Maximize")
       )
 #+end_src
 *** Projectile
@@ -1083,3 +1099,4 @@ Alice -> Bob: test
    a -> b;
   }
 #+end_src
+
