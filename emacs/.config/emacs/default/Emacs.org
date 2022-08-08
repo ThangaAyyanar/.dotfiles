@@ -1,5 +1,7 @@
 #+title: Emacs From Scratch Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
+#+CATEGORY: Configuration
+
 
 * UI Configuration
 ** Basic Stuff
@@ -103,14 +105,14 @@
 ** Auto Update Packages
 
 #+begin_src emacs-lisp
-(use-package auto-package-update
-  :custom
-  (auto-package-update-interval 7)
-  (auto-package-update-prompt-before-update t)
-  (auto-package-update-hide-results t)
-  :config
-  (auto-package-update-maybe)
-  (auto-package-update-at-time "11:00"))
+;; (use-package auto-package-update
+  ;; :custom
+  ;; (auto-package-update-interval 7)
+  ;; (auto-package-update-prompt-before-update t)
+  ;; (auto-package-update-hide-results t)
+  ;; :config
+  ;; (auto-package-update-maybe)
+  ;; (auto-package-update-at-time "11:00"))
 #+end_src
 * Custom functions
 
@@ -454,142 +456,142 @@
 - In progress
 *** Initial Configuration
 #+begin_src emacs-lisp
-  (defun ayan/org-mode-setup ()
-    (org-indent-mode)
-    ;;(variable-pitch-mode 1)
-    (visual-line-mode 1)
-  )
-
-  (use-package org
-    :pin org
-    :commands (org-capture org-agenda)
-    :hook (org-mode . ayan/org-mode-setup)
-    :config
-    (setq org-ellipsis " ▾")
-    (setq org-return-follows-link t)
-    (setq org-agenda-files
-          '("~/cloud/Dropbox/Tasks.org"
-            "~/Documents/My Library/OrgFiles/Habits.org"
-            "~/Zoho WorkDrive (Enterprise)/My Folders/Sync/Tasks.org"
-            ;; "~/Documents/My Library/OrgFiles/Tasks.org"
-            ))
-
-    ;; org habit (set the propert to habit to track it)
-    (require 'org-habit)
-    (add-to-list 'org-modules 'org-habit)
-    (setq org-habit-graph-column 60)
-
-    (setq org-agenda-start-with-log-mode t)
-    (setq org-log-done 'time)
-    (setq org-log-into-drawer t)
-
-    (setq org-todo-keywords
-          '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-            (sequence "BACKLOG(b)" "PLAN(p)" "ISSUE(i)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "DELEGATED(d)" "COMPLETED(c)" "CANC(k@)")))
-
-    ;; Archiving tags
-    (setq org-refile-targets
-          '( ;; ("Tasks.org" :maxlevel . 1)
-            ("~/Zoho WorkDrive (Enterprise)/My Folders/Sync/Archive.org" :maxlevel . 4)
-            ;;("OTHERFILE.org" :maxlevel . 2)
-            ))
-
-    ;; save the all org file after the refile is done
-    (advice-add 'org-refile :after 'org-save-all-org-buffers)
-
-      ;; Configure custom agenda views
-    (setq org-agenda-custom-commands
-     '(("d" "Dashboard"
-       ((agenda "" ((org-deadline-warning-days 7)))
-        (todo "NEXT"
-          ((org-agenda-overriding-header "Next Tasks")))
-        (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
-
-      ("n" "Next Tasks"
-       ((todo "NEXT"
-          ((org-agenda-overriding-header "Next Tasks")))))
-
-      ("W" "Work Tasks" tags-todo "+work-email")
-
-      ;; Low-effort next actions
-      ;; Org set effort related stuff (org properties for the header)
-      ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
-       ((org-agenda-overriding-header "Low Effort Tasks")
-        (org-agenda-max-todos 20)
-        (org-agenda-files org-agenda-files)))
-
-      ("w" "Workflow Status"
-       ((todo "WAIT"
-              ((org-agenda-overriding-header "Waiting on External")
-               (org-agenda-files org-agenda-files)))
-        (todo "REVIEW"
-              ((org-agenda-overriding-header "In Review")
-               (org-agenda-files org-agenda-files)))
-        (todo "PLAN"
-              ((org-agenda-overriding-header "In Planning")
-               (org-agenda-todo-list-sublevels nil)
-               (org-agenda-files org-agenda-files)))
-        (todo "BACKLOG"
-              ((org-agenda-overriding-header "Project Backlog")
-               (org-agenda-todo-list-sublevels nil)
-               (org-agenda-files org-agenda-files)))
-        (todo "READY"
-              ((org-agenda-overriding-header "Ready for Work")
-               (org-agenda-files org-agenda-files)))
-        (todo "ACTIVE"
-              ((org-agenda-overriding-header "Active Projects")
-               (org-agenda-files org-agenda-files)))
-        (todo "COMPLETED"
-              ((org-agenda-overriding-header "Completed Projects")
-               (org-agenda-files org-agenda-files)))
-        (todo "CANC"
-              ((org-agenda-overriding-header "Cancelled Projects")
-               (org-agenda-files org-agenda-files)))))))
-
-      ;; Org default tags
-      ;; <C-c C-q> tag addition view
-      (setq org-tag-alist
-      '((:startgroup)
-         ; Put mutually exclusive tags here
-         (:endgroup)
-         ("@errand" . ?E)
-         ("@home" . ?H)
-         ("@work" . ?W)
-         ("agenda" . ?a)
-         ("planning" . ?p)
-         ("publish" . ?P)
-         ("batch" . ?b)
-         ("note" . ?n)
-         ("idea" . ?i)))
-
-      ;; Templates (org-capture)
-      (setq org-capture-templates
-      `(("t" "Tasks / Projects")
-        ("tt" "Task" entry (file+olp "~/Documents/My Library/OrgFiles/Tasks.org" "Inbox")
-             "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
-
-        ("j" "Journal Entries")
-        ("jj" "Journal" entry
-             (file+olp+datetree "~/Documents/My Library/OrgFiles/Journal.org")
-             "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-             ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-             :clock-in :clock-resume
-             :empty-lines 1)
-        ("jm" "Meeting" entry
-             (file+olp+datetree "~/Documents/My Library/OrgFiles/Journal.org")
-             "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-             :clock-in :clock-resume
-             :empty-lines 1)
-
-        ("w" "Workflows")
-        ("we" "Checking Email" entry (file+olp+datetree "~/Documents/My Library/OrgFiles/Journal.org")
-             "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
-
-        ("m" "Metrics Capture")
-        ("mw" "Weight" table-line (file+headline "~/Documents/My Library/OrgFiles/Metrics.org" "Weight")
-         "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
-
+    (defun ayan/org-mode-setup ()
+      (org-indent-mode)
+      ;;(variable-pitch-mode 1)
+      (visual-line-mode 1)
     )
+
+    (use-package org
+      :pin org
+      :commands (org-capture org-agenda)
+      :hook (org-mode . ayan/org-mode-setup)
+      :config
+      (setq org-ellipsis " ▾")
+      (setq org-return-follows-link t)
+      (setq org-agenda-files
+            '("~/cloud/Dropbox/Tasks.org"
+              "~/Documents/My Library/OrgFiles/Habits.org"
+              "~/Zoho WorkDrive (Enterprise)/My Folders/Sync/Tasks.org"
+              ;; "~/Documents/My Library/OrgFiles/Tasks.org"
+              ))
+
+      ;; org habit (set the propert to habit to track it)
+      (require 'org-habit)
+      (add-to-list 'org-modules 'org-habit)
+      (setq org-habit-graph-column 60)
+
+      (setq org-agenda-start-with-log-mode t)
+      (setq org-log-done 'time)
+      (setq org-log-into-drawer t)
+
+      (setq org-todo-keywords
+            '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)" "DELEGATED(e)")
+              (sequence "BACKLOG(b)" "PLAN(p)" "ISSUE(i)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "DELEGATED(d)" "COMPLETED(c)" "CANC(k@)")))
+
+      ;; Archiving tags
+      (setq org-refile-targets
+            '( ;; ("Tasks.org" :maxlevel . 1)
+              ("~/Zoho WorkDrive (Enterprise)/My Folders/Sync/Archive.org" :maxlevel . 4)
+              ;;("OTHERFILE.org" :maxlevel . 2)
+              ))
+
+      ;; save the all org file after the refile is done
+      (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+        ;; Configure custom agenda views
+      (setq org-agenda-custom-commands
+       '(("d" "Dashboard"
+         ((agenda "" ((org-deadline-warning-days 7)))
+          (todo "NEXT"
+            ((org-agenda-overriding-header "Next Tasks")))
+          (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+
+        ("n" "Next Tasks"
+         ((todo "NEXT"
+            ((org-agenda-overriding-header "Next Tasks")))))
+
+        ("W" "Work Tasks" tags-todo "+work-email")
+
+        ;; Low-effort next actions
+        ;; Org set effort related stuff (org properties for the header)
+        ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+         ((org-agenda-overriding-header "Low Effort Tasks")
+          (org-agenda-max-todos 20)
+          (org-agenda-files org-agenda-files)))
+
+        ("w" "Workflow Status"
+         ((todo "WAIT"
+                ((org-agenda-overriding-header "Waiting on External")
+                 (org-agenda-files org-agenda-files)))
+          (todo "REVIEW"
+                ((org-agenda-overriding-header "In Review")
+                 (org-agenda-files org-agenda-files)))
+          (todo "PLAN"
+                ((org-agenda-overriding-header "In Planning")
+                 (org-agenda-todo-list-sublevels nil)
+                 (org-agenda-files org-agenda-files)))
+          (todo "BACKLOG"
+                ((org-agenda-overriding-header "Project Backlog")
+                 (org-agenda-todo-list-sublevels nil)
+                 (org-agenda-files org-agenda-files)))
+          (todo "READY"
+                ((org-agenda-overriding-header "Ready for Work")
+                 (org-agenda-files org-agenda-files)))
+          (todo "ACTIVE"
+                ((org-agenda-overriding-header "Active Projects")
+                 (org-agenda-files org-agenda-files)))
+          (todo "COMPLETED"
+                ((org-agenda-overriding-header "Completed Projects")
+                 (org-agenda-files org-agenda-files)))
+          (todo "CANC"
+                ((org-agenda-overriding-header "Cancelled Projects")
+                 (org-agenda-files org-agenda-files)))))))
+
+        ;; Org default tags
+        ;; <C-c C-q> tag addition view
+        (setq org-tag-alist
+        '((:startgroup)
+           ; Put mutually exclusive tags here
+           (:endgroup)
+           ("@errand" . ?E)
+           ("@home" . ?H)
+           ("@work" . ?W)
+           ("agenda" . ?a)
+           ("planning" . ?p)
+           ("publish" . ?P)
+           ("batch" . ?b)
+           ("note" . ?n)
+           ("idea" . ?i)))
+
+        ;; Templates (org-capture)
+        (setq org-capture-templates
+        `(("t" "Tasks / Projects")
+          ("tt" "Task" entry (file+olp "~/Documents/My Library/OrgFiles/Tasks.org" "Inbox")
+               "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+
+          ("j" "Journal Entries")
+          ("jj" "Journal" entry
+               (file+olp+datetree "~/Documents/My Library/OrgFiles/Journal.org")
+               "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+               ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+               :clock-in :clock-resume
+               :empty-lines 1)
+          ("jm" "Meeting" entry
+               (file+olp+datetree "~/Documents/My Library/OrgFiles/Journal.org")
+               "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+               :clock-in :clock-resume
+               :empty-lines 1)
+
+          ("w" "Workflows")
+          ("we" "Checking Email" entry (file+olp+datetree "~/Documents/My Library/OrgFiles/Journal.org")
+               "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+
+          ("m" "Metrics Capture")
+          ("mw" "Weight" table-line (file+headline "~/Documents/My Library/OrgFiles/Metrics.org" "Weight")
+           "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
+
+      )
 #+end_src
 *** Org Bullets
 - Convert the org headline * to circle
@@ -651,15 +653,49 @@
 
 - Automatically create init.el file whenever we save this file.
 #+begin_src emacs-lisp
+;; This allows you to tell org-babel to tangle you org files after
+;; save by placing:
+;; #+CATEGORY: Configuration
+;; in the head of the org file.
+;; Change this search key/term to what best suits the individual
+(setq efs/tangle-search-key "CATEGORY")
+(setq efs/tangle-search-term "Configuration")
+
+(defun efs/org-global-props (&optional efs/property)
+  "Get the plists of global org properties of current buffer."
+  (interactive)
+  (unless efs/property (setq efs/property "PROPERTY"))
+  (org-element-map (org-element-parse-buffer)
+      'keyword (lambda (el) (when (string-match efs/property (org-element-property :key el)) el))))
+
+(defun efs/org-global-prop-value (key)
+  "Get global org property KEY of current buffer."
+  (org-element-property :value (car (efs/org-global-props key))))
+
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
-  (when (string-equal (file-name-directory (buffer-file-name))
-                      (expand-file-name user-emacs-directory))
+  "Used to tangle org file when it change."
+  (when (or (string-equal (file-name-directory (buffer-file-name))
+                          (expand-file-name user-emacs-directory))
+            (string-equal (efs/org-global-prop-value efs/tangle-search-key) efs/tangle-search-term))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+#+end_src
+
+#+begin_src emacs-lisp
+;; Automatically tangle our Emacs.org config file when we save it
+;; (defun efs/org-babel-tangle-config ()
+;;   (when (string-equal (file-name-directory (buffer-file-name))
+;;                       (expand-file-name user-emacs-directory))
+;;     ;; Dynamic scoping to the rescue
+;;     (let ((org-confirm-babel-evaluate nil))
+;;       (org-babel-tangle))))
+
+;; (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 #+end_src
 
 *** Org Roam
@@ -678,6 +714,24 @@
              ("C-M-i"    . completion-at-point))
       :config
          (org-roam-setup))
+#+end_src
+
+*** Org Roam UI
+#+begin_src emacs-lisp
+(use-package websocket
+    :after org-roam)
+
+(use-package org-roam-ui
+    :after org-roam ;; or :after org
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start t))
 #+end_src
 
 *** Org Alert
@@ -746,6 +800,19 @@
 )
 #+end_src
 
+*** Ledger
+#+begin_src emacs-lisp
+  (use-package ledger-mode
+     :init
+     (setq ledger-clear-whole-transactions 1)
+     (setq ledger-reports '(("bal" "gpg -d -q %(ledger-file) | %(binary) -f - bal")
+                       ("reg" "gpg -d -q %(ledger-file) | %(binary) -f - reg")
+                       ("payee" "gpg -d -q %(ledger-file) | %(binary) -f - reg @%(payee)")
+                       ("account" "gpg -d -q %(ledger-file) | %(binary) -f - reg %(account)")))
+     :mode "\\.ledger\\'")   
+
+#+end_src
+
 ** LSP
 
 *** Header breadcrumb
@@ -789,12 +856,21 @@
 
 
 *** Swift
+#+begin_src emacs-lisp
+  (use-package company-sourcekit
+  :hook (swift-mode . company-sourcekit)
+  :config
+       (setq company-sourcekit-verbose nil
+                sourcekit-verbose nil
+                sourcekit-sourcekittendaemon-executable "/Users/thanga-6745/Scripts/Production/sourcekittend")
+                (add-to-list 'company-backends 'company-sourcekit))
+#+end_src
 
 #+begin_src emacs-lisp
-(use-package lsp-sourcekit
-  :hook (switf-mode . lsp-deferred)
-  :config
-  (setq lsp-sourcekit-executable (string-trim (shell-command-to-string "xcrun --find sourcekit-lsp"))))
+;; (use-package lsp-sourcekit
+;;   :hook (switf-mode . lsp-deferred)
+;;   :config
+;;   (setq lsp-sourcekit-executable (string-trim (shell-command-to-string "xcrun --find sourcekit-lsp"))))
 #+end_src
 
 *** Python
@@ -986,15 +1062,18 @@
 #+end_src
 *** Buffers KeyBindings
 #+begin_src emacs-lisp
-(ayan/leader-keys
-    "b"  '(:ignore t :which-key "buffer")
-    "br" '(revert-buffer :which-key "Revert Buffer")
-    "bs" '(counsel-switch-buffer :which-key "Switch Buffer")
-;;    "bp" '(persp-counsel-switch-buffer :which-key "Perspective Switch Buffer")
-    "bw" '(counsel-switch-buffer-other-window :which-key "Switch Buffer Other Window")
-    "bk" '(kill-buffer :which-key "Kill Buffer")
-    "bx" '(kill-current-buffer :which-key "Kill Current Buffer")
-    )
+  (ayan/leader-keys
+      "b"  '(:ignore t :which-key "buffer")
+      "br" '(revert-buffer :which-key "Revert Buffer")
+      "bs" '(counsel-switch-buffer :which-key "Switch Buffer")
+      "bS" '(persp-switch :which-key "Perspective Switch")
+      "bN" '(persp-switch-last :which-key "Perspective Switch last")
+
+  ;;    "bp" '(persp-counsel-switch-buffer :which-key "Perspective Switch Buffer")
+      "bw" '(counsel-switch-buffer-other-window :which-key "Switch Buffer Other Window")
+      "bk" '(kill-buffer :which-key "Kill Buffer")
+      "bx" '(kill-current-buffer :which-key "Kill Current Buffer")
+      )
 #+end_src
 *** Files KeyBindings
 #+begin_src emacs-lisp
@@ -1016,7 +1095,7 @@
 (defun open-init-file ()
   "Open this very file."
   (interactive)
-  (find-file "~/.config/emacs/default/Emacs.org"))
+  (find-file "~/.dotfiles/emacs/.config/emacs/default/Emacs.org"))
 
 ;; Open
 (ayan/leader-keys

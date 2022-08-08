@@ -1,6 +1,8 @@
-cyberchef	https://gchq.github.io/CyberChef	 #Encoding #Decoding
-FunTyping	https://play.typeracer.com	  #Typing #Fun
-SelfHostApps	https://shownotes.opensourceisawesome.com  #Self Host apps
-XcodeDownload	https://xcodereleases.com  #xcode download xip -x to save from verifying
-StackOverflowDump	https://archive.org/details/stackexchange # Database dump of stack overflow
-Chisel	https://github.com/facebook/chisel/wiki # Chisel commands explaination
+cyberchef,https://gchq.github.io/CyberChef,Encoding Decoding Hashing algorithm in interactive way
+FunTyping,https://play.typeracer.com,Typing and Racing
+Keyboard Practice,https://keybr.com,Typing and Learning
+SelfHostApps,https://shownotes.opensourceisawesome.com,Self Host apps
+XcodeDownload,https://xcodereleases.com,xcode download xip -x to save from verifying
+StackOverflowDump,https://archive.org/details/stackexchange,Database dump of stack overflow
+Chisel,https://github.com/facebook/chisel/wiki,Chisel commands explaination
+ZlibBooks,https://z-lib.org,Zlib Books
