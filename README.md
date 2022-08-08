@@ -13,3 +13,6 @@ newsboat<folder>
 │--------├── config      
 │--------└── urls
 ```
+
+
+`Archive(Linux dot files)` is my old i3wm rice and other cli programs configurations
