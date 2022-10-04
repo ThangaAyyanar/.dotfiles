@@ -1,5 +1,5 @@
 
-(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height 165)
+(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height 170)
 
 (require 'hl-line)
 (add-hook 'prog-mode-hook #'hl-line-mode)
@@ -50,7 +50,7 @@
 (advice-add 'helpful-update :after #'elisp-demos-advice-helpful-update)
 
 ;;;; Theme
-(load-theme 'doom-tokyo-night t)
+(load-theme 'doom-gruvbox t)
 
 
 (message "UI file loaded")

@@ -13,9 +13,9 @@
 ;; `nil' before loading `evil' and `evil-collection'
 ;; @see https://github.com/emacs-evil/evil-collection#installation
 (setq evil-want-keybinding nil)
+(setq evil-want-C-u-scroll t)
 
 (require 'evil)
-(setq evil-want-C-u-scroll t)
 ;; Load Evil and enable it globally
 (evil-mode 1)
 

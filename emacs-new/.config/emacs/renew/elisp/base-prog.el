@@ -6,6 +6,8 @@
 (straight-use-package 'company)
 (add-hook 'prog-mode-hook 'global-company-mode)
 
+(straight-use-package 'magit)
+
 (straight-use-package 'lsp-mode)
 ;(add-hook 'prog-mode-hook #'lsp-deferred)
 
