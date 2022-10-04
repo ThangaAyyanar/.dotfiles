@@ -1,0 +1,28 @@
+add_newline = false
+
+[character]
+success_symbol = "[➜](bold green)"
+
+# Clear visibility for exit codes
+[status]
+style = "bg:red"
+symbol = "💣 "
+format = '[\[$symbol$status\]]($style) '
+disabled = false
+
+# These symbols will only show when battery levels are 20% or less
+[battery]
+charging_symbol = "⚡️ "
+discharging_symbol = "💀 "
+
+[[battery.display]]  # "bold red" style when capacity is between 0% and 20%
+threshold = 40 
+style = "bold red"
+
+#[python]
+#python_binary = "python3"
+
+[swift]
+symbol = "ﯣ (orange)"
+
+
