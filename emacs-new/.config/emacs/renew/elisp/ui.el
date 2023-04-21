@@ -1,5 +1,5 @@
 
-(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height 170)
+(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height 150)
 
 (require 'hl-line)
 (add-hook 'prog-mode-hook #'hl-line-mode)
@@ -52,6 +52,9 @@
 ;;;; Theme
 (load-theme 'doom-gruvbox t)
 
+
+(straight-use-package 'which-key)
+(which-key-mode)
 
 (message "UI file loaded")
 (provide 'ui)

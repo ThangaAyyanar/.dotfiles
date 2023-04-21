@@ -1,14 +1,14 @@
 
 ;; Install dependencies
 (straight-use-package 'evil)
-(straight-use-package 'undo-tree)
+;; (straight-use-package 'undo-tree)
 (straight-use-package 'evil-collection)
 (straight-use-package 'evil-nerd-commenter)
 
-;; Turn on undo-tree globally
-(global-undo-tree-mode)
+;; turnon undo-tree globally
+;;(global-undo-tree-mode)
 
-(setq evil-undo-system 'undo-tree)
+;;(setq evil-undo-system 'undo-tree)
 ;; `evil-collection' assumes `evil-want-keybinding' is set to
 ;; `nil' before loading `evil' and `evil-collection'
 ;; @see https://github.com/emacs-evil/evil-collection#installation

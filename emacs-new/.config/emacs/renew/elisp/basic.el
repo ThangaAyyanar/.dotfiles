@@ -28,6 +28,14 @@
 (global-display-line-numbers-mode t)
 (setq display-line-numbers-type 'relative)
 
+;; Disable line number for some mode
+(dolist (mode '(pdf-view-mode-hook
+                nov-mode-hook
+                treemacs-mode-hook
+		shell-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
 ;; adding Environment path
 (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))
